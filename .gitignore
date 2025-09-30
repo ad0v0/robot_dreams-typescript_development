@@ -1,0 +1,39 @@
+# Node.js dependencies
+node_modules/
+.pnp/
+.pnp.cjs
+
+# Build artifacts
+dist/
+build/
+out/
+
+# Compiled JavaScript files and declaration files
+*.js
+*.d.ts
+*.d.ts.map
+*.js.map
+
+# Log files
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.log
+
+# Editor and IDE specific files
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# Test coverage reports
+coverage/
+
+# Misc
+.DS_Store
+Thumbs.db
