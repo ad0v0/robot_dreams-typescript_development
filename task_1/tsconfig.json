@@ -12,8 +12,8 @@
     "types": [],
     // For nodejs:
     // "lib": ["esnext"],
-    // "types": ["node"],
-    // and npm install -D @types/node
+    // "dto": ["node"],
+    // and npm install -D @dto/node
 
     // Other Outputs
     "sourceMap": true,
