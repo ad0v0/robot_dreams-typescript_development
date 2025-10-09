@@ -1,31 +1,31 @@
-import { validateTasks } from './utils/utils'
+import { getTasks } from './utils/utils'
 import type { Task, TaskFilter } from './dto/Task'
 
 function getTaskDetails(id: string): string {
-  const tasks = validateTasks()
+  const tasks = getTasks()
   const task = tasks.find((task: Task) => task.id === id)
 
   if (!task) return ''
 
   return (`
-    id: ${task.id || '—'},
-    title: ${task.title || '—'},
-    description: ${task.description || '—'},
-    createdAt: ${new Date(task.createdAt || new Date()).toLocaleString('en-US')},
-    status: ${task.status || '—'},
-    priority: ${task.priority || '—'},
-    deadline: ${new Date(task.deadline || new Date()).toLocaleString('en-US') || '—'}
+    id: ${task.id},
+    title: ${task.title},
+    description: ${task.description},
+    createdAt: ${new Date(task.createdAt).toLocaleString('en-US')},
+    status: ${task.status},
+    priority: ${task.priority},
+    deadline: ${new Date(task.deadline).toLocaleString('en-US')}
   `)
 }
 
 function createNewTask(task: Task): Task[] {
-  const tasks = validateTasks()
+  const tasks = getTasks()
   tasks.push(task)
   return tasks
 }
 
 function updateTaskDetails(id: string, taskDetails: Partial<Task>): Task | undefined {
-  const tasks = validateTasks()
+  const tasks = getTasks()
   const task = tasks.find((task: Task) => task.id === id)
 
   if (!task) return undefined
@@ -35,7 +35,7 @@ function updateTaskDetails(id: string, taskDetails: Partial<Task>): Task | undef
 }
 
 function filterTasks(filter: TaskFilter): Task[] {
-  const tasks = validateTasks()
+  const tasks = getTasks()
 
   return tasks.filter((task) => {
     const taskFilteredByStatus = !filter.status || task.status === filter.status
@@ -47,7 +47,7 @@ function filterTasks(filter: TaskFilter): Task[] {
 }
 
 function deleteTask(id: string): boolean {
-  const tasks = validateTasks()
+  const tasks = getTasks()
   const initialTasksAmount = tasks.length
   const filteredTasks = tasks.filter((task: Task) => task.id !== id)
   const afterDeleteTasksAmount = filteredTasks.length
@@ -55,7 +55,7 @@ function deleteTask(id: string): boolean {
 }
 
 function checkTaskForCompletionBeforeDeadline(id: string): boolean {
-  const tasks = validateTasks()
+  const tasks = getTasks()
   const task = tasks.find((task: Task) => task.id === id)
 
   if (!task) return false

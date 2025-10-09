@@ -5,7 +5,7 @@ import type { Task } from '../dto/Task'
 import { DEFAULT_STATUS, DEFAULT_PRIORITY } from '../constants/constants'
 
 const TaskSchema = z.object({
-  id: z.union([z.string()]).transform(String),
+  id: z.string(),
   title: z.string(),
   description: z.string(),
   createdAt: z.string().refine((string) => !isNaN(Date.parse(string))).transform((string) => new Date(string)),
@@ -14,10 +14,10 @@ const TaskSchema = z.object({
   priority: z.enum(['low','medium','high']).optional().default(DEFAULT_PRIORITY),
 })
 const TasksSchema = z.array(TaskSchema)
-const validatedTasksStructure = TasksSchema.parse(tasks)
+const validatedTasks = TasksSchema.parse(tasks)
 
-export function validateTasks (): Task[] {
-  return validatedTasksStructure.map((task: Task) => {
+export function getTasks (): Task[] {
+  return validatedTasks.map((task: Task) => {
     return {
       ...task,
       status: task.status || DEFAULT_STATUS,
