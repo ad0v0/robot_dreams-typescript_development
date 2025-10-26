@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Denis's task manager</title>
+  <link rel="stylesheet" href="./src/style.css" />
+</head>
+<body>
+<main>
+  <h1>Tasks</h1>
+
+  <div class="container">
+    <section class="tasks">
+      <h2>On my plate...</h2>
+      <div id="tasksList" class="tasks-list">Loading...</div>
+    </section>
+
+    <aside class="form">
+      <h2>What will I do next...</h2>
+      <form id="createForm">
+        <label>
+          Name
+          <input name="title" type="text" required />
+        </label>
+
+        <label>
+          Description
+          <input name="description" type="text" />
+        </label>
+
+        <label>
+          Status
+          <select name="status">
+            <option value="todo">todo</option>
+            <option value="in_progress">in_progress</option>
+            <option value="done">done</option>
+          </select>
+        </label>
+
+        <label>
+          Priority
+          <select name="priority">
+            <option value="low">low</option>
+            <option value="medium">medium</option>
+            <option value="high">high</option>
+          </select>
+        </label>
+
+        <label>
+          Deadline
+          <input name="deadline" type="date" />
+        </label>
+
+        <div class="form-actions">
+          <button type="submit">Create task</button>
+        </div>
+      </form>
+    </aside>
+  </div>
+
+  <script type="module" src="./src/main.ts"></script>
+</main>
+</body>
+</html>
