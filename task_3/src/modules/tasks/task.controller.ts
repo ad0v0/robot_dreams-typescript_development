@@ -16,7 +16,7 @@ export class TaskController {
     return this.service.createTask(task)
   }
 
-  updateTask(id: string, updates: Partial<Task>) {
+  updateTask(id: string, updates: Partial<Omit<Task, 'id' | 'createdAt'>>) {
     return this.service.updateTask(id, updates)
   }
 
