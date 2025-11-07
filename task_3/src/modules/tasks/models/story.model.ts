@@ -1,12 +1,11 @@
 import { Task } from './task.model'
-import type { Task as TaskDTO } from '../../../dto/Task'
+import type { TaskDTO } from '../task.types'
 
 export class Story extends Task {
   userValue: string
 
   constructor(task: TaskDTO & { userValue: string }) {
     super(task)
-    if (!task.userValue || !task.userValue.trim()) throw new Error('userValue is required for Story')
     this.userValue = task.userValue
   }
 

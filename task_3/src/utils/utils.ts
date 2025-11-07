@@ -1,7 +1,7 @@
 import { z } from 'zod'
 
 import { tasks } from '../data/tasks.json'
-import type { Task } from '../dto/Task'
+import type { TaskDTO } from '../modules/tasks/task.types'
 import { DEFAULT_STATUS, DEFAULT_PRIORITY } from '../constants/constants'
 
 const TaskSchema = z.object({
@@ -16,8 +16,8 @@ const TaskSchema = z.object({
 const TasksSchema = z.array(TaskSchema)
 const validatedTasks = TasksSchema.parse(tasks)
 
-export function getTasks (): Task[] {
-  return validatedTasks.map((task: Task) => {
+export function getTasks (): TaskDTO[] {
+  return validatedTasks.map((task: TaskDTO) => {
     return {
       ...task,
       status: task.status || DEFAULT_STATUS,

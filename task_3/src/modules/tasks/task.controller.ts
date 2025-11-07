@@ -1,5 +1,5 @@
 import { TaskService } from './task.service'
-import type { Task, TaskFilter } from '../../dto/Task'
+import type { TaskDTO, TaskFilter } from './task.types'
 
 export class TaskController {
   private service: TaskService
@@ -12,11 +12,11 @@ export class TaskController {
     return this.service.getTaskDetails(id)
   }
 
-  createTask(task: Task) {
+  createTask(task: TaskDTO) {
     return this.service.createTask(task)
   }
 
-  updateTask(id: string, updates: Partial<Omit<Task, 'id' | 'createdAt'>>) {
+  updateTask(id: string, updates: Partial<Omit<TaskDTO, 'id' | 'createdAt'>>) {
     return this.service.updateTask(id, updates)
   }
 

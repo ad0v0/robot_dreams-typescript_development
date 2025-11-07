@@ -1,4 +1,4 @@
-import type { Task, TaskFilter } from './dto/Task'
+import type { TaskDTO, TaskFilter } from './modules/tasks/task.types'
 
 import { TaskController } from './modules/tasks/task.controller'
 
@@ -20,15 +20,15 @@ function getTaskDetails(id: string): string {
   `)
 }
 
-function createNewTask(task: Task): Task[] {
+function createNewTask(task: TaskDTO): TaskDTO[] {
   return taskController.createTask(task)
 }
 
-function updateTaskDetails(id: string, taskDetails: Partial<Task>): Task | undefined {
+function updateTaskDetails(id: string, taskDetails: Partial<TaskDTO>): TaskDTO | undefined {
   return taskController.updateTask(id, taskDetails)
 }
 
-function filterTasks(filter: TaskFilter): Task[] {
+function filterTasks(filter: TaskFilter): TaskDTO[] {
   return taskController.filterTasks(filter)
 }
 

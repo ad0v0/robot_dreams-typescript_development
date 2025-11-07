@@ -1,5 +1,5 @@
 import { Task } from './task.model'
-import type { Task as TaskDTO } from '../../../dto/Task'
+import type { TaskDTO } from '../task.types'
 
 export class Epic extends Task {
   childIds: string[]
