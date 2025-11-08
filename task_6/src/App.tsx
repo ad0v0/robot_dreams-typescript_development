@@ -1,24 +1,9 @@
-import { useState } from 'react'
-
-import Tasks from './features/tasks/components/Tasks'
-import CreateTaskForm from './features/tasks/components/CreateTaskForm'
+import React from 'react'
+import Router from './router'
 import './styles.css'
 
-function App() {
-  const [refreshKey, setRefreshKey] = useState(0)
-
+export default function App() {
   return (
-    <>
-      <h1>Tasks</h1>
-      <div className="container">
-        <Tasks
-          key={refreshKey}
-        />
-        <CreateTaskForm
-          onCreated={() => setRefreshKey((k) => k + 1)}
-        />
-      </div>
-    </>
+    <Router />
   )
 }
-export default App

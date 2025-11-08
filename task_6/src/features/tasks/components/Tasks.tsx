@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
 
 import { getTasks, deleteTask, updateTask } from '../api'
 import type { Task } from '../types'
@@ -9,24 +10,30 @@ function Tasks() {
   const [loading, setLoading] = useState<boolean>(true)
   const [error, setError] = useState<string>('')
 
-  async function handleDeleteTask(id) {
-    const confirmed = window.confirm('I assure you we don\'t need it...')
+  const navigate = useNavigate()
 
-    if (!confirmed) {
-      return
+  async function handleDeleteTask(id: string) {
+    const confirmed = window.confirm("I assure you we don't need it...")
+
+    if (!confirmed) return
+
+    try {
+      await deleteTask(id)
+      setTasks((prevTasks) => prevTasks.filter((task) => task.id !== id))
+    } catch (error) {
+      alert('Failed to delete due to: ' + getErrorMessage(error))
     }
-
-    await deleteTask(id)
-    setTasks((prevTasks) => prevTasks.filter((task) => task.id !== id))
   }
 
-  async function handleToggleStatus(currentTask) {
+  async function handleToggleStatus(currentTask: Task) {
     const newStatus = currentTask.status === 'done' ? 'todo' : 'done'
-    const updatedTask = await updateTask(currentTask.id, { status: newStatus })
 
-    setTasks((prevTasks) => prevTasks.map((task) => (
-      task.id === currentTask.id ? updatedTask : task
-    )))
+    try {
+      const updatedTask = await updateTask(currentTask.id, { status: newStatus })
+      setTasks((prevTasks) => prevTasks.map((task) => (task.id === currentTask.id ? updatedTask : task)))
+    } catch (error) {
+      alert('Failed to update status due to: ' + getErrorMessage(error))
+    }
   }
 
   useEffect(() => {
@@ -47,13 +54,13 @@ function Tasks() {
 
   if (loading) {
     return (
-      <p>Loading...</p>
+      <p>Loading tasks...</p>
     )
   }
 
   if (error) {
     return (
-      <p style={{ color: "red" }}>{error}</p>
+      <p style={{ color: 'red' }}>{error}</p>
     )
   }
 
@@ -61,13 +68,19 @@ function Tasks() {
     <section className="tasks">
       <h2>On my plate...</h2>
 
+      <div style={{ marginBottom: 12 }}>
+        <button onClick={() => navigate('/tasks/create')}>Create task</button>
+      </div>
+
       <div className="tasks-list">
         {tasks.length === 0 ? (
           <p>Denis — the Great Performer. Everything is done.</p>
         ) : (
           tasks.map((task) => (
             <div key={task.id} className="task">
-              <h3>{task.title}</h3>
+              <h3>
+                <Link to={`/tasks/${encodeURIComponent(task.id)}`}>{task.title}</Link>
+              </h3>
               <small>{task.description}</small>
 
               <div className="task-details">

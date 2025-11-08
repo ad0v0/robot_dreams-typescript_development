@@ -1,4 +1,4 @@
-import type { Task, TaskFilter, Status, Priority } from './types'
+import type { Task, TaskFilter } from './types'
 
 const BASE = 'http://localhost:3000'
 const TASKS = `${BASE}/tasks`
