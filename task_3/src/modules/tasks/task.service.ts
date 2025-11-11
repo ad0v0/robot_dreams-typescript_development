@@ -6,6 +6,7 @@ import { Subtask } from './models/subtask.model'
 import { Bug } from './models/bug.model'
 import { Story } from './models/story.model'
 import { Epic } from './models/epic.model'
+import { TASK_PRIORITIES, TASK_STATUSES } from './task.types'
 
 type TaskUpdates = Partial<Omit<TaskDTO, 'id' | 'createdAt'>>
 
@@ -110,7 +111,7 @@ export class TaskService {
     const index = this.tasks.findIndex((task) => task.id === id)
     if (index === -1) return undefined
 
-    this.validateTaskData(update as Partial<TaskDTO>)
+    this.validateTaskData(update)
 
     const task = this.tasks[index]
 
@@ -120,14 +121,13 @@ export class TaskService {
     if (update.description !== undefined) {
       task.description = update.description
     }
-
     if (update.status !== undefined) {
-      if (!['todo', 'in_progress', 'done'].includes(update.status)) throw new Error('The status is invalid')
+      if (!TASK_STATUSES.includes(update.status)) throw new Error('The status is invalid')
       task.status = update.status
     }
 
     if (update.priority !== undefined) {
-      if (!['low', 'medium', 'high'].includes(update.priority)) {
+      if (!TASK_PRIORITIES.includes(update.priority)) {
         throw new Error('The priority is invalid')
       }
       task.priority = update.priority
@@ -145,8 +145,8 @@ export class TaskService {
     if (task instanceof Subtask && update.parentId !== undefined) {
       task.parentId = update.parentId
     }
-    if (task instanceof Epic && update.childIds !== undefined) {
-      task.childIds = Array.isArray(update.childIds) ? update.childIds.slice() : task.childIds
+    if (task instanceof Epic && Array.isArray(update.childIds)) {
+      task.childIds = update.childIds.slice()
     }
     if (task instanceof Story && update.userValue !== undefined) {
       task.userValue = update.userValue

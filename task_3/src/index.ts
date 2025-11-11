@@ -1,8 +1,10 @@
 import type { TaskDTO, TaskFilter } from './modules/tasks/task.types'
 
+import { TaskService } from './modules/tasks/task.service'
 import { TaskController } from './modules/tasks/task.controller'
 
-const taskController = new TaskController()
+const service = new TaskService()
+const taskController = new TaskController(service)
 
 function getTaskDetails(id: string): string {
   const task = taskController.getTaskDetails(id)

@@ -4,9 +4,7 @@ import type { TaskDTO, TaskFilter } from './task.types'
 export class TaskController {
   private service: TaskService
 
-  constructor() {
-    this.service = new TaskService()
-  }
+  constructor(service: TaskService) { this.service = service }
 
   getTaskDetails(id: string) {
     return this.service.getTaskDetails(id)
