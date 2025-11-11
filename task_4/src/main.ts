@@ -1,15 +1,19 @@
 import './style.css'
-import * as api from './api'
+import { getTasks, createTask, updateTask, deleteTask } from './api'
 import type { Task, CreateTaskPayload } from './dto/Task'
+import { DEFAULT_PRIORITY, DEFAULT_STATUS } from './constants/constants'
 
 const tasksListElement = document.getElementById('tasksList') as HTMLDivElement
 const createForm = document.getElementById('createForm') as HTMLFormElement
 
+// TODO: make all statuses handling
+// TODO: add change priority/deadline/title/description edit
+// TODO: add sorting and filtering buttons
+
 function formatDate(date?: Date | string): string {
   if (!date) return '—'
 
-  const newDate = date instanceof Date ? date : new Date(date)
-  return newDate.toLocaleString()
+  return new Date(date).toLocaleString()
 }
 
 function getErrorMessage(error: unknown): string {
@@ -19,6 +23,7 @@ function getErrorMessage(error: unknown): string {
 function createTaskItem(task: Task): HTMLDivElement {
   const element = document.createElement('div')
   element.className = 'task'
+  element.dataset.id = task.id
 
   const title = document.createElement('h3')
   title.textContent = task.title
@@ -43,54 +48,59 @@ function createTaskItem(task: Task): HTMLDivElement {
   controls.className = 'task-controls'
 
   const toggleButton = document.createElement('button')
-  // TODO: make all statuses handling
-  // TODO: add change priority/deadline/title/description edit
+  toggleButton.className = 'toggle-button'
   toggleButton.textContent = task.status === 'done' ? 'Mark as todo' : 'Mark as done'
 
-  toggleButton.addEventListener('click', async () => {
-    toggleButton.disabled = true
-    try {
-      const newStatus = task.status === 'done' ? 'todo' : 'done'
-      await api.updateTask(task.id, { status: newStatus })
-      await renderTasks()
-    } catch (error) {
-      alert('Could not change status due to: ' + getErrorMessage(error))
-    } finally {
-      toggleButton.disabled = false
-    }
-  })
+  const deleteButton = document.createElement('button')
+  deleteButton.className = 'delete-button'
+  deleteButton.textContent = 'Delete'
 
   controls.appendChild(toggleButton)
-
-  const deleteButton = document.createElement('button')
-  deleteButton.textContent = 'Delete'
-  deleteButton.addEventListener('click', async () => {
-    if (!confirm('Delete the task?')) return
-
-    deleteButton.disabled = true
-
-    try {
-      await api.deleteTask(task.id)
-      await renderTasks()
-    } catch (error) {
-      alert('Could not delete the task due to: ' + getErrorMessage(error))
-      deleteButton.disabled = false
-    }
-  })
   controls.appendChild(deleteButton)
-
   element.appendChild(controls)
+
   return element
 }
+
+tasksListElement.addEventListener('click', async (event) => {
+  const target = event.target as HTMLElement
+  const taskElement = target.closest('.task') as HTMLDivElement | null
+  if (!taskElement) return
+
+  const taskId = taskElement.dataset.id
+  if (!taskId) return
+
+  try {
+    if (target.matches('.toggle-button')) {
+      const statusSpan = taskElement.querySelector('.status') as HTMLSpanElement
+      const currentStatus = statusSpan.textContent as 'todo' | 'done'
+
+      target.setAttribute('disabled', 'true')
+      const newStatus = currentStatus === 'done' ? 'todo' : 'done'
+      await updateTask(taskId, { status: newStatus })
+      await renderTasks()
+    }
+
+    if (target.matches('.delete-button')) {
+      if (!confirm('Delete the task?')) return
+
+      target.setAttribute('disabled', 'true')
+      await deleteTask(taskId)
+      await renderTasks()
+    }
+  } catch (error) {
+    alert('Action failed due to: ' + getErrorMessage(error))
+    target.removeAttribute('disabled')
+  }
+})
 
 export async function renderTasks(): Promise<void> {
   tasksListElement.innerHTML = 'Loading tasks...'
   try {
-    // TODO: add sorting and filtering buttons
-    const tasks = await api.getTasks()
+    const tasks = await getTasks()
     tasks.sort((prevTask, nextTask) => {
-      const prevTaskTime = prevTask.createdAt instanceof Date ? prevTask.createdAt.getTime() : new Date(prevTask.createdAt).getTime()
-      const nextTaskTime = nextTask.createdAt instanceof Date ? nextTask.createdAt.getTime() : new Date(nextTask.createdAt).getTime()
+      const prevTaskTime = new Date(prevTask.createdAt).getTime()
+      const nextTaskTime = new Date(nextTask.createdAt).getTime()
       return nextTaskTime - prevTaskTime
     })
 
@@ -108,48 +118,40 @@ export async function renderTasks(): Promise<void> {
 
 createForm.addEventListener('submit', async (event) => {
   event.preventDefault()
-  const data = new FormData(createForm)
-  const title = String(data.get('title') || '').trim()
-  const description = String(data.get('description') || '').trim()
-  const status = String(data.get('status') || 'todo') as Task['status']
-  const priority = String(data.get('priority') || 'medium') as Task['priority']
-  const deadlineValue = data.get('deadline') as string | null
 
-  if (!title) return alert('Title is required')
+  const formData = Object.fromEntries(new FormData(createForm).entries()) as Record<string, string>
 
-  let deadlineDateFormatted: string | undefined = undefined
-  if (deadlineValue) {
-    const [year, month, day] = deadlineValue.split('-').map(Number)
+  if (!formData.title) return alert('Title is required')
+
+  let deadline: Date
+  if (formData.deadline) {
+    const [year, month, day] = formData.deadline.split('-').map(Number)
     const date = new Date(Date.UTC(year, month - 1, day, 0, 0, 0))
-    deadlineDateFormatted = date.toISOString()
+    deadline = new Date(date.toISOString())
+  } else {
+    deadline = new Date()
   }
 
   const payload: CreateTaskPayload = {
-    title,
-    description,
-    status,
-    priority,
-    ...(deadlineDateFormatted && { deadline: deadlineDateFormatted }),
+    title: formData.title,
+    description: formData.description,
+    status: formData.status as Task['status'] || DEFAULT_STATUS,
+    priority: formData.priority as Task['priority'] || DEFAULT_PRIORITY,
+    deadline
   }
 
-  const submitButton = (createForm.querySelector('button[type="submit"]') as HTMLButtonElement | null)
-
-  if (!submitButton) {
-    throw new Error('Submit button not found')
-  }
-
-  if (submitButton) {
-    submitButton.disabled = true
-  }
+  const submitButton = createForm.querySelector('button[type="submit"]') as HTMLButtonElement | null
+  if (!submitButton) throw new Error('Submit button not found')
+  submitButton.disabled = true
 
   try {
-    await api.createTask(payload)
+    await createTask(payload)
     createForm.reset()
     await renderTasks()
   } catch (error) {
     alert('Failed creating task due to: ' + getErrorMessage(error))
   } finally {
-    if (submitButton) submitButton.disabled = false
+    submitButton.disabled = false
   }
 })
 

@@ -5,7 +5,7 @@
       "title": "Wake up your human",
       "description": "After you have woke up yourself, make sure your human is also awake and ready to feed you.",
       "createdAt": "2025-10-01T07:00:00Z",
-      "status": "done",
+      "status": "todo",
       "priority": "high",
       "deadline": "2025-10-01T07:15:00Z"
     },
@@ -14,7 +14,7 @@
       "title": "Inspect the window view",
       "description": "Check for birds, leaves, and any suspicious movements outside the window.",
       "createdAt": "2025-10-01T08:00:00Z",
-      "status": "in_progress",
+      "status": "done",
       "priority": "medium",
       "deadline": "2025-10-01T09:00:00Z"
     },
@@ -23,7 +23,7 @@
       "title": "Morning grooming session",
       "description": "Spend at least 15 minutes cleaning your fur. Start with front paws.",
       "createdAt": "2025-10-01T08:30:00Z",
-      "status": "todo",
+      "status": "done",
       "priority": "high",
       "deadline": "2025-10-01T10:00:00Z"
     },
@@ -32,7 +32,7 @@
       "title": "Improve your human's live",
       "description": "Sit on their keyboard while they work. Purr loudly to motivate productivity.",
       "createdAt": "2025-10-01T09:00:00Z",
-      "status": "done",
+      "status": "todo",
       "priority": "medium",
       "deadline": "2025-10-01T11:00:00Z"
     },
@@ -41,7 +41,7 @@
       "title": "Nap No. 1",
       "description": "Take a strategic nap on the warmest available surface.",
       "createdAt": "2025-10-01T10:00:00Z",
-      "status": "done",
+      "status": "todo",
       "priority": "high",
       "deadline": "2025-10-01T12:00:00Z"
     },
@@ -50,7 +50,7 @@
       "title": "Chase invisible enemy",
       "description": "Randomly sprint across the room to keep reflexes sharp.",
       "createdAt": "2025-10-01T11:30:00Z",
-      "status": "todo",
+      "status": "done",
       "priority": "high",
       "deadline": "2025-10-01T13:00:00Z"
     },
@@ -59,7 +59,7 @@
       "title": "Inspect the food bowl",
       "description": "Ensure the food bowl is filled with food.",
       "createdAt": "2025-10-01T12:00:00Z",
-      "status": "todo",
+      "status": "done",
       "priority": "medium",
       "deadline": "2025-10-01T13:30:00Z"
     },
@@ -68,7 +68,7 @@
       "title": "Evening cuddle session",
       "description": "Sit on your human’s lap and warm them up.",
       "createdAt": "2025-10-01T18:00:00Z",
-      "status": "in_progress",
+      "status": "done",
       "priority": "high",
       "deadline": "2025-10-01T19:30:00Z"
     },
@@ -77,7 +77,7 @@
       "title": "Midnight zoomies",
       "description": "Run across the apartment at full speed for no reason.",
       "createdAt": "2025-10-01T23:00:00Z",
-      "status": "todo",
+      "status": "done",
       "priority": "high",
       "deadline": "2025-10-02T00:00:00Z"
     },
@@ -86,7 +86,7 @@
       "title": "Guard the house at night",
       "description": "Sit silently in the dark and stare at nothing. Make your human nervous.",
       "createdAt": "2025-10-02T00:10:00Z",
-      "status": "todo",
+      "status": "done",
       "priority": "high",
       "deadline": "2025-10-02T06:00:00Z"
     },
@@ -94,7 +94,7 @@
       "id": "1962",
       "title": "New task test",
       "description": "Just testing the description",
-      "status": "todo",
+      "status": "done",
       "priority": "high",
       "deadline": "2025-10-31T00:00:00.000Z",
       "createdAt": "2025-10-26T10:55:17.395Z"
@@ -103,7 +103,7 @@
       "id": "515d",
       "title": "srgs",
       "description": "srg",
-      "status": "in_progress",
+      "status": "done",
       "priority": "medium",
       "createdAt": "2025-10-26T13:27:07.231Z"
     },
@@ -111,9 +111,45 @@
       "id": "428b",
       "title": "wfw",
       "description": "",
-      "status": "todo",
+      "status": "done",
       "priority": "low",
       "createdAt": "2025-10-26T13:27:31.881Z"
+    },
+    {
+      "id": "1e4e",
+      "title": "egwe",
+      "description": "wegweg",
+      "status": "done",
+      "priority": "medium",
+      "deadline": "1966-11-14T00:00:00.000Z",
+      "createdAt": "2025-11-11T18:00:10.913Z"
+    },
+    {
+      "id": "a004",
+      "title": "sdvsdvv",
+      "description": "",
+      "status": "todo",
+      "priority": "low",
+      "deadline": "2025-11-11T18:17:20.292Z",
+      "createdAt": "2025-11-11T18:17:20.292Z"
+    },
+    {
+      "id": "faaf",
+      "title": "createion at",
+      "description": "",
+      "status": "todo",
+      "priority": "low",
+      "deadline": "2025-11-11T18:19:54.638Z",
+      "createdAt": "2025-11-11T18:19:54.639Z"
+    },
+    {
+      "id": "c7dc",
+      "title": "final test",
+      "description": "sadvdsvsdv",
+      "status": "done",
+      "priority": "high",
+      "deadline": "2026-11-11T00:00:00.000Z",
+      "createdAt": "2025-11-11T19:13:23.619Z"
     }
   ]
 }
