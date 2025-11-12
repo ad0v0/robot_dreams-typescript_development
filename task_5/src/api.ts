@@ -1,27 +1,7 @@
-import type { Task, TaskFilter, Status, Priority } from './dto/Task'
+import type {Task, TaskFilter} from './dto/Task'
 
 const BASE = 'http://localhost:3000'
 const TASKS = `${BASE}/tasks`
-
-type TaskRaw = Omit<Task, 'createdAt' | 'deadline'> & {
-  createdAt: string
-  deadline?: string
-}
-
-function parseTask(taskRaw: TaskRaw): Task {
-  return {
-    ...taskRaw,
-    createdAt: new Date(taskRaw.createdAt),
-    deadline: taskRaw.deadline ? new Date(taskRaw.deadline) : undefined
-  }
-}
-
-function convertTask(task: Partial<Task>): Partial<TaskRaw> {
-  const convertedTask: Partial<TaskRaw> = { ...task }
-  if (task.createdAt instanceof Date) convertedTask.createdAt = task.createdAt.toISOString()
-  if (task.deadline instanceof Date) convertedTask.deadline = task.deadline.toISOString()
-  return convertedTask
-}
 
 async function handleResponse(response: Response) {
   if (!response.ok) {
@@ -33,36 +13,30 @@ async function handleResponse(response: Response) {
 
 export async function getTasks(): Promise<Task[]> {
   const response = await fetch(TASKS)
-  const taskRaw = await handleResponse(response) as TaskRaw[]
-  return taskRaw.map(parseTask)
+  return await handleResponse(response)
 }
 
 export async function getTaskDetails(id: string): Promise<Task> {
   const response = await fetch(`${TASKS}/${encodeURIComponent(id)}`)
-  const taskRaw = await handleResponse(response) as TaskRaw
-  return parseTask(taskRaw)
+  return await handleResponse(response)
 }
 
-export async function createTask(payload: Omit<Task, 'id' | 'createdAt'> & { id?: string }): Promise<Task> {
-  const body = convertTask(payload as Partial<Task>)
+export async function createTask(payload: Omit<Task, 'id' | 'createdAt'>): Promise<Task> {
   const response = await fetch(TASKS, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ ...body, createdAt: (body.createdAt ?? new Date().toISOString()) })
+    body: JSON.stringify({ ...payload, createdAt: new Date() })
   })
-  const taskRaw = await handleResponse(response) as TaskRaw
-  return parseTask(taskRaw)
+  return await handleResponse(response)
 }
 
 export async function updateTask(id: string, partial: Partial<Task>): Promise<Task> {
-  const body = convertTask(partial)
   const response = await fetch(`${TASKS}/${encodeURIComponent(id)}`, {
     method: 'PATCH',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(body)
+    body: JSON.stringify(partial)
   })
-  const taskRaw = await handleResponse(response) as TaskRaw
-  return parseTask(taskRaw)
+  return await handleResponse(response)
 }
 
 export async function deleteTask(id: string): Promise<void> {
@@ -88,9 +62,7 @@ export async function filterTasks(filter: TaskFilter): Promise<Task[]> {
   }
 
   const response = await fetch(`${TASKS}?${params.toString()}`)
-  const taskRaw = await handleResponse(response) as TaskRaw[]
-
-  return taskRaw.map(parseTask)
+  return await handleResponse(response)
 }
 
 export default {

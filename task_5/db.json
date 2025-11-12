@@ -14,7 +14,7 @@
       "title": "Inspect the window view",
       "description": "Check for birds, leaves, and any suspicious movements outside the window.",
       "createdAt": "2025-10-01T08:00:00Z",
-      "status": "in_progress",
+      "status": "done",
       "priority": "medium",
       "deadline": "2025-10-01T09:00:00Z"
     },
@@ -23,7 +23,7 @@
       "title": "Morning grooming session",
       "description": "Spend at least 15 minutes cleaning your fur. Start with front paws.",
       "createdAt": "2025-10-01T08:30:00Z",
-      "status": "todo",
+      "status": "done",
       "priority": "high",
       "deadline": "2025-10-01T10:00:00Z"
     },
@@ -115,6 +115,15 @@
       "priority": "low",
       "deadline": "0035-02-24T00:00:00.000Z",
       "createdAt": "2025-11-03T17:33:32.716Z"
+    },
+    {
+      "id": "5f2c",
+      "title": "final test",
+      "description": "zzzz",
+      "status": "todo",
+      "priority": "high",
+      "deadline": "2026-11-11T00:00:00.000Z",
+      "createdAt": "2025-11-12T17:46:48.215Z"
     }
   ]
 }

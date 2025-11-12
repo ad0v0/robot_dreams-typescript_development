@@ -9,7 +9,19 @@ function Tasks() {
   const [loading, setLoading] = useState<boolean>(true)
   const [error, setError] = useState<string>('')
 
-  async function handleDeleteTask(id) {
+  async function loadTasks(): Promise<void> {
+    try {
+      setLoading(true)
+      const data = await getTasks()
+      setTasks(data)
+    } catch (error) {
+      setError('Failed to load tasks due to: ' + getErrorMessage(error))
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  async function handleDeleteTask(id: string): Promise<void> {
     const confirmed = window.confirm('I assure you we don\'t need it...')
 
     if (!confirmed) {
@@ -17,31 +29,18 @@ function Tasks() {
     }
 
     await deleteTask(id)
-    setTasks((prevTasks) => prevTasks.filter((task) => task.id !== id))
+
+    loadTasks()
   }
 
-  async function handleToggleStatus(currentTask) {
+  async function handleToggleStatus(currentTask: Task): Promise<void> {
     const newStatus = currentTask.status === 'done' ? 'todo' : 'done'
-    const updatedTask = await updateTask(currentTask.id, { status: newStatus })
+    await updateTask(currentTask.id, { status: newStatus })
 
-    setTasks((prevTasks) => prevTasks.map((task) => (
-      task.id === currentTask.id ? updatedTask : task
-    )))
+    loadTasks()
   }
 
   useEffect(() => {
-    async function loadTasks() {
-      try {
-        setLoading(true)
-        const data = await getTasks()
-        setTasks(data)
-      } catch (error) {
-        setError('Failed to load tasks due to: ' + getErrorMessage(error))
-      } finally {
-        setLoading(false)
-      }
-    }
-
     loadTasks()
   }, [])
 
