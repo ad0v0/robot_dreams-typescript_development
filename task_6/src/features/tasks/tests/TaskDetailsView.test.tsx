@@ -1,14 +1,17 @@
-import React from 'react'
 import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
+import { vi } from 'vitest'
 
 import TaskDetailsView from '../pages/TaskDetailsView'
-import * as api from '../api'
+import type { Task } from '../types'
+import { getTaskDetails } from '../api'
 
 vi.mock('../api', () => ({
   getTaskDetails: vi.fn(),
 }))
+
+const mockGetTaskDetails = getTaskDetails as unknown as vi.MockedFunction<typeof getTaskDetails>
 
 describe('TaskDetailsView', () => {
   afterEach(() => {
@@ -28,15 +31,25 @@ describe('TaskDetailsView', () => {
   }
 
   test('Navigate back when "Back" button is clicked', async () => {
-    const mockTask = { id: '1', title: 'Back test' }
-    ;(api.getTaskDetails).mockResolvedValueOnce(mockTask)
+    const mockTask: Task = {
+      id: 'id_1',
+      title: 'Test title',
+      description: 'Test description',
+      createdAt: new Date(),
+      status: 'todo',
+      priority: 'low',
+      deadline: new Date(),
+    }
+
+    mockGetTaskDetails.mockResolvedValueOnce(mockTask)
 
     renderTestRouter('1')
 
-    await waitFor(() => expect(api.getTaskDetails).toHaveBeenCalledWith('1'))
+    await waitFor(() => expect(mockGetTaskDetails).toHaveBeenCalledWith('1'))
 
+    const user = userEvent.setup()
     const backBtn = screen.getByRole('button', { name: /back/i })
-    await userEvent.click(backBtn)
+    await user.click(backBtn)
 
     await waitFor(() => expect(screen.getByTestId('tasks-page')).toBeInTheDocument())
   })

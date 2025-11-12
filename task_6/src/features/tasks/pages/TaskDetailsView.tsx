@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 
 import { getTaskDetails } from '../api'
@@ -8,20 +8,21 @@ import { formatDate, getErrorMessage } from '../../../shared/utils/utils'
 export default function TaskDetailsView() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
+
   const [task, setTask] = useState<Task | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string>('')
 
   useEffect(() => {
-    if (!id) return
-
     async function load() {
       try {
         setLoading(true)
-        const data = await getTaskDetails(id)
-        setTask(data)
-      } catch (err) {
-        setError('Failed to load task: ' + getErrorMessage(err))
+        if (id) {
+          const data = await getTaskDetails(id)
+          setTask(data)
+        }
+      } catch (error) {
+        setError('Failed to load task: ' + getErrorMessage(error))
       } finally {
         setLoading(false)
       }

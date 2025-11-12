@@ -1,4 +1,3 @@
-import React from 'react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -6,25 +5,27 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import type { Task } from '../types'
 import { createTask } from '../api'
 import { getErrorMessage } from '../../../shared/utils/utils'
+import { TASK_PRIORITIES, TASK_STATUSES } from '../types'
+import { DEFAULT_PRIORITY, DEFAULT_STATUS } from '../../../shared/constants/constants'
 
 const TaskSchema = z.object({
   title: z.string().min(4, 'Title is required and must contain at least 4 characters. Why 4? Can you meow?'),
-  description: z.string(),
-  status: z.enum(['todo', 'in_progress', 'done']).default('todo'),
-  priority: z.enum(['low', 'medium', 'high']).default('low'),
+  description: z.string().optional().or(z.literal('')),
+  status: z.enum(TASK_STATUSES).default(DEFAULT_STATUS),
+  priority: z.enum(TASK_PRIORITIES).default(DEFAULT_PRIORITY),
   deadline: z
     .string()
+    .optional()
     .refine((value) => {
       if (!value) return true
       const chosenDate = new Date(value)
       const today = new Date()
       today.setHours(0, 0, 0, 0)
       return chosenDate >= today
-    }, 'Deadline should not be a date from the past')
-    .transform((value) => (value ? new Date(value) : undefined)),
+    }, 'Deadline should not be a date from the past'),
 })
 
-type TaskFormPayload = z.infer<typeof TaskSchema>
+type CreateTaskPayload = Omit<Task, 'id' | 'createdAt'>
 
 type Props = {
   onCreated?: () => void
@@ -36,7 +37,7 @@ export default function CreateTaskForm({ onCreated }: Props) {
     handleSubmit,
     reset,
     formState: { errors, isValid, isSubmitting },
-  } = useForm<TaskFormPayload>({
+  } = useForm({
     resolver: zodResolver(TaskSchema),
     mode: 'onChange',
     defaultValues: {
@@ -48,14 +49,13 @@ export default function CreateTaskForm({ onCreated }: Props) {
     },
   })
 
-  const onSubmit = async (data: TaskFormPayload) => {
-    const payload: Task = {
+  const onSubmit = async (data: CreateTaskPayload) => {
+    const payload = {
       title: data.title,
-      description: data.description || undefined,
-      status: data.status,
-      priority: data.priority,
-      deadline: data.deadline ? new Date(data.deadline).toISOString() : undefined,
-      createdAt: new Date().toISOString(),
+      description: data.description ? data.description : '',
+      status: data.status || DEFAULT_STATUS,
+      priority: data.priority || DEFAULT_PRIORITY,
+      deadline: data.deadline ? new Date(data.deadline) : new Date()
     }
 
     try {

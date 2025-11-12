@@ -6,61 +6,56 @@ import type { Task } from '../types'
 import { formatDate, getErrorMessage } from '../../../shared/utils/utils'
 
 function Tasks() {
+  const navigate = useNavigate()
+
   const [tasks, setTasks] = useState<Task[]>([])
   const [loading, setLoading] = useState<boolean>(true)
   const [error, setError] = useState<string>('')
 
-  const navigate = useNavigate()
-
-  async function handleDeleteTask(id: string) {
-    const confirmed = window.confirm("I assure you we don't need it...")
-
-    if (!confirmed) return
-
+  async function loadTasks(): Promise<void> {
     try {
-      await deleteTask(id)
-      setTasks((prevTasks) => prevTasks.filter((task) => task.id !== id))
+      setLoading(true)
+      const data = await getTasks()
+      setTasks(data)
     } catch (error) {
-      alert('Failed to delete due to: ' + getErrorMessage(error))
+      setError('Failed to load tasks due to: ' + getErrorMessage(error))
+    } finally {
+      setLoading(false)
     }
   }
 
-  async function handleToggleStatus(currentTask: Task) {
-    const newStatus = currentTask.status === 'done' ? 'todo' : 'done'
+  async function handleDeleteTask(id: string): Promise<void> {
+    const confirmed = window.confirm('I assure you we don\'t need it...')
 
-    try {
-      const updatedTask = await updateTask(currentTask.id, { status: newStatus })
-      setTasks((prevTasks) => prevTasks.map((task) => (task.id === currentTask.id ? updatedTask : task)))
-    } catch (error) {
-      alert('Failed to update status due to: ' + getErrorMessage(error))
+    if (!confirmed) {
+      return
     }
+
+    await deleteTask(id)
+
+    loadTasks()
+  }
+
+  async function handleToggleStatus(currentTask: Task): Promise<void> {
+    const newStatus = currentTask.status === 'done' ? 'todo' : 'done'
+    await updateTask(currentTask.id, { status: newStatus })
+
+    loadTasks()
   }
 
   useEffect(() => {
-    async function loadTasks() {
-      try {
-        setLoading(true)
-        const data = await getTasks()
-        setTasks(data)
-      } catch (error) {
-        setError('Failed to load tasks due to: ' + getErrorMessage(error))
-      } finally {
-        setLoading(false)
-      }
-    }
-
     loadTasks()
   }, [])
 
   if (loading) {
     return (
-      <p>Loading tasks...</p>
+      <p>Loading...</p>
     )
   }
 
   if (error) {
     return (
-      <p style={{ color: 'red' }}>{error}</p>
+      <p style={{ color: "red" }}>{error}</p>
     )
   }
 

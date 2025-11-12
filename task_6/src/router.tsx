@@ -1,4 +1,3 @@
-import React from 'react'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import TasksListView from './features/tasks/pages/TasksListView'
 import CreateTaskView from './features/tasks/pages/CreateTaskView'

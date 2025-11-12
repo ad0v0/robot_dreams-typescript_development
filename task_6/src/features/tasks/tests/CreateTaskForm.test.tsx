@@ -1,31 +1,27 @@
-import React from 'react'
 import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+import { MemoryRouter } from 'react-router-dom'
 
 import CreateTaskForm from '../components/CreateTaskForm'
 
-vi.mock('../api', () => ({
-  createTask: vi.fn(),
-}))
-
 describe('CreateTaskForm', () => {
-  beforeAll(() => {
-    globalThis.alert = vi.fn()
-  })
-
-  afterEach(() => {
-    vi.clearAllMocks()
-  })
-
-  test('Submit button disabled when form is empty', () => {
-    render(<CreateTaskForm />)
+  it('Submit button is disabled when form is empty', () => {
+    render(
+      <MemoryRouter>
+        <CreateTaskForm />
+      </MemoryRouter>
+    )
 
     const submit = screen.getByRole('button', { name: /create task/i })
     expect(submit).toBeDisabled()
   })
 
-  test('Submit button enabled when form is valid', async () => {
-    render(<CreateTaskForm />)
+  it('Submit button enabled when form is valid', async () => {
+    render(
+      <MemoryRouter>
+        <CreateTaskForm />
+      </MemoryRouter>
+    )
 
     const user = userEvent.setup()
     const titleInput = screen.getByLabelText(/name \*/i)
@@ -36,11 +32,17 @@ describe('CreateTaskForm', () => {
 
     await user.type(titleInput, 'Valid title')
 
-    await waitFor(() => expect(submit).toBeEnabled())
+    await waitFor(() => {
+      expect(submit).toBeEnabled()
+    })
   })
 
-  test('Shows validation error for short title and prevents submit', async () => {
-    render(<CreateTaskForm />)
+  it('Shows validation error for short title', async () => {
+    render(
+      <MemoryRouter>
+        <CreateTaskForm />
+      </MemoryRouter>
+    )
 
     const user = userEvent.setup()
     const titleInput = screen.getByLabelText(/name \*/i)
