@@ -23,7 +23,7 @@ export async function getTaskDetails(id: string): Promise<Task> {
   return taskRaw
 }
 
-export async function createTask(payload: Omit<Task, 'id' | 'createdAt'> & { id?: string }): Promise<Task> {
+export async function createTask(payload: Omit<Task, 'id' | 'createdAt'>): Promise<Task> {
   const response = await fetch(TASKS, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },

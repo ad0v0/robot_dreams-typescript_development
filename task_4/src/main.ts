@@ -73,7 +73,7 @@ tasksListElement.addEventListener('click', async (event) => {
   try {
     if (target.matches('.toggle-button')) {
       const statusSpan = taskElement.querySelector('.status') as HTMLSpanElement
-      const currentStatus = statusSpan.textContent as 'todo' | 'done'
+      const currentStatus = statusSpan.textContent
 
       target.setAttribute('disabled', 'true')
       const newStatus = currentStatus === 'done' ? 'todo' : 'done'
@@ -140,7 +140,7 @@ createForm.addEventListener('submit', async (event) => {
     deadline
   }
 
-  const submitButton = createForm.querySelector('button[type="submit"]') as HTMLButtonElement | null
+  const submitButton = createForm.querySelector('button[type="submit"]') as HTMLButtonElement
   if (!submitButton) throw new Error('Submit button not found')
   submitButton.disabled = true
 
