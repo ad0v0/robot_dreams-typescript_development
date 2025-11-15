@@ -2,6 +2,9 @@ import dotenv from 'dotenv'
 import { Dialect } from 'sequelize'
 import { Sequelize } from 'sequelize-typescript'
 
+import UserModel from '../models/User.model'
+import TaskModel from '../models/Task.model'
+
 dotenv.config({
   path: `.env.${process.env.NODE_ENV || 'development'}`,
 })
@@ -20,21 +23,25 @@ interface DBConfig {
 
 const config: DBConfig = {
   development: {
-    username: process.env.DB_USER,
-    password: process.env.DB_PASSWORD,
-    database: process.env.DB_NAME,
-    host: process.env.DB_HOST,
-    dialect: 'postgres',
+    dialect: 'sqlite',
+    storage: './dev.sqlite',
+    logging: false,
   },
   test: {
     dialect: 'sqlite',
-    storage: ':memory:', // runs in RAM
+    storage: ':memory:',
     logging: false,
   },
 }
-const db = new Sequelize({
-  ...config[process.env.NODE_ENV || 'development'],
-  models: [__dirname + '/../models'],
+
+const env = process.env.NODE_ENV || 'development'
+const cfg = config[env]
+
+const sequelize = new Sequelize({
+  ...cfg,
+  models: [UserModel, TaskModel],
+  logging: env === 'development' ? console.log : false,
 })
 
-export default db
+export default sequelize
+export { sequelize as db, UserModel, TaskModel }

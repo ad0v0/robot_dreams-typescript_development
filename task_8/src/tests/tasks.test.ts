@@ -1,7 +1,7 @@
-import db from '../config/database'
-import { User } from '../models/User'
 import request from 'supertest'
-import app from '../app'
+
+import db, { TaskModel, UserModel } from '../config/database'
+import app from '../server'
 
 beforeEach(async () => {
   await db.sync({ force: true })
@@ -11,36 +11,76 @@ afterAll(async () => {
   await db.close()
 })
 
-it('POST /users creates a new user', async () => {
-  const response = await request(app)
-    .post('/users')
-    .send({ name: 'Mykola', email: '' })
-    .expect(201)
+describe('Tasks API', () => {
+  it('POST /tasks creates a new task', async () => {
+    const user = await UserModel.create({ name: 'Olha', email: 'olha@example.com' })
 
-  expect(response.body).toHaveProperty('id')
-  expect(response.body.name).toBe('Mykola')
+    const response = await request(app)
+      .post('/tasks')
+      .send({
+        title: 'Task 1',
+        description: 'Description 1',
+        status: 'todo',
+        priority: 'medium',
+        assigneeId: user.id,
+      })
+      .expect(201)
 
-  await request(app).post('/users').send({ name: '' }).expect(400)
-})
+    expect(response.body).toHaveProperty('id')
+    expect(response.body.title).toBe('Task 1')
 
-it('GET /users returns list of users', async () => {
-  const response = await request(app).get('/users')
-  expect(response.body).toHaveLength(0)
-  await User.create({ name: 'User', email: 'user@gmail.com' })
-  await User.create({ name: 'User 1', email: 'user@gmail.com' })
-  const response2 = await request(app).get('/users')
-  expect(response2.body).toHaveLength(2)
-})
-
-it('DELETE /users/:id deletes a user', async () => {
-  const user = await User.create({
-    name: 'User to delete',
-    email: 'deleteduser@gmail.com',
+    await request(app).post('/tasks').send({}).expect(400)
   })
-  await request(app).delete(`/users/${user.id}`).expect(200)
-  const response = await request(app).get('/users')
-  expect(response.body).toHaveLength(0)
 
-  await User.create({ name: 'User', email: 'user@gmail.com' })
-  await request(app).delete('/users/999').expect(404)
+  it('GET /tasks returns list of tasks', async () => {
+    const resEmpty = await request(app).get('/tasks').expect(200)
+    expect(Array.isArray(resEmpty.body)).toBe(true)
+    expect(resEmpty.body).toHaveLength(0)
+
+    const user = await UserModel.create({ name: 'Olha', email: 'olha@example.com' })
+    await TaskModel.create({ title: 'Task 1', status: 'todo', priority: 'low', assigneeId: user.id })
+    await TaskModel.create({ title: 'Task 2', status: 'in_progress', priority: 'high', assigneeId: user.id })
+
+    const response = await request(app).get('/tasks').expect(200)
+    expect(Array.isArray(response.body)).toBe(true)
+    expect(response.body).toHaveLength(2)
+  })
+
+  it('GET /tasks/:id returns task details', async () => {
+    const user = await UserModel.create({ name: 'Olha', email: 'olha@example.com' })
+    const task = await TaskModel.create({ title: 'Task 1', status: 'todo', priority: 'low', assigneeId: user.id })
+
+    const response = await request(app).get(`/tasks/${task.id}`).expect(200)
+    expect(response.body.id).toBe(task.id)
+    expect(response.body.assigneeId).toBe(user.id)
+
+    await request(app).get('/tasks/666').expect(404)
+  })
+
+  it('PUT /tasks/:id updates a task', async () => {
+    const user = await UserModel.create({ name: 'Olha', email: 'olha@example.com' })
+    const task = await TaskModel.create({ title: 'Task 1', status: 'todo', priority: 'low', assigneeId: user.id })
+
+    const response = await request(app)
+      .put(`/tasks/${task.id}`)
+      .send({ title: 'Updated Task', status: 'done' })
+      .expect(200)
+
+    expect(response.body.title).toBe('Updated Task')
+    expect(response.body.status).toBe('done')
+
+    await request(app).put('/tasks/666').send({ title: 'Fail' }).expect(404)
+  })
+
+  it('DELETE /tasks/:id deletes a task', async () => {
+    const user = await UserModel.create({ name: 'Olha', email: 'olha@example.com' })
+    const task = await TaskModel.create({ title: 'Task 1', status: 'todo', priority: 'low', assigneeId: user.id })
+
+    await request(app).delete(`/tasks/${task.id}`).expect(200)
+
+    const response = await request(app).get('/tasks').expect(200)
+    expect(response.body).toHaveLength(0)
+
+    await request(app).delete('/tasks/666').expect(404)
+  })
 })

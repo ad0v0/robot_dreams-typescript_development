@@ -1,74 +1,105 @@
-import { v4 as uuidv4 } from 'uuid'
-import { Op } from "sequelize"
+import { Op } from 'sequelize'
 
-import { Task, TaskFilter} from '../types/task.types'
-import { tasks } from '../database/data'
 import AppError from '../error'
+import { TaskModel, UserModel } from '../config/database'
+import type { Task, TaskFilter, Status, Priority } from '../types/task.types'
 
 export const getTasks = async (filters?: TaskFilter) => {
-  let result = tasks
-
-  // if (filters) {
-  //   if (filters.status) {
-  //     result = result.filter((task) => task.status === filters.status)
-  //   }
-  //   if (filters.priority) {
-  //     result = result.filter((task) => task.priority === filters.priority)
-  //   }
-  //   if (filters.createdAt) {
-  //     result = result.filter((task) => task.createdAt.startsWith(filters.createdAt))
-  //   }
-  // }
-
   const appliedFilters = {}
-  if (filters?.active) {
-    Object.assign(appliedFilters, { active: filters.active })
+
+  if (filters?.status) {
+    Object.assign(appliedFilters, { active: filters.status })
   }
-  if (filters?.lastLogin) {
-    const lastLogin = new Date(filters.lastLogin)
+
+  if (filters?.priority) {
+    Object.assign(appliedFilters, { active: filters.priority })
+  }
+
+  if (filters?.createdAt) {
+    const createdAt = new Date(filters.createdAt)
     Object.assign(appliedFilters, {
-      lastLoginAt: {
-        [Op.gte]: lastLogin,
+      createdAt: {
+        [Op.gte]: createdAt,
       },
     })
   }
-  const users = await User.findAll({
+
+  return TaskModel.findAll({
     where: {
       [Op.and]: {
         ...appliedFilters,
       },
     },
   })
-
-  return result
 }
 
 export const getTaskById = async (id: string) => {
-  return tasks.find((task) => task.id === id)
-}
+  const task = await TaskModel.findByPk(id)
 
-export const addTask = async (task: Omit<Task, 'id' | 'createdAt'>) => {
-  const newTask: Task = {
-    ...task,
-    id: uuidv4(),
-    createdAt: new Date().toISOString(),
-  }
-  tasks.push(newTask)
-  return newTask
-}
-
-export const updateTask = async (id: string, updatedFields: Partial<Task>) => {
-  const task = tasks.find((task) => task.id === id)
   if (!task) {
     throw new AppError('Task not found', 404)
   }
-  Object.assign(task, updatedFields)
   return task
 }
 
+export const addTask = async (taskData: {
+  title: string
+  description?: string
+  status?: Status
+  priority?: Priority
+  deadline?: Date | string | null
+  assigneeId?: string | null
+}) => {
+  if (taskData.assigneeId) {
+    const assignee = await UserModel.findByPk(taskData.assigneeId)
+
+    if (!assignee) {
+      throw new AppError('Assignee not found', 404)
+    }
+  }
+
+  const task = await TaskModel.create({
+    ...taskData,
+    deadline: taskData.deadline ? new Date(taskData.deadline) : null,
+    assigneeId: taskData.assigneeId ?? null,
+  })
+
+  return getTaskById(task.id).then((item) => item.toJSON())
+}
+
+export const updateTask = async (id: string, updates: Partial<Task>) => {
+  const task = await TaskModel.findByPk(id)
+
+  if (!task) {
+    throw new AppError('Task not found', 404)
+  }
+
+  if ('assigneeId' in updates && updates.assigneeId) {
+    const assignee = await UserModel.findByPk(updates.assigneeId)
+
+    if (!assignee) {
+      throw new AppError('Assignee not found', 404)
+    }
+  }
+
+  await task.update({
+    ...updates,
+    deadline: updates.deadline ? new Date(updates.deadline as Date | string) : updates.deadline ?? null,
+    assigneeId: updates.assigneeId ?? task.assigneeId,
+  })
+
+  const updatedTask = await getTaskById(task.id)
+  return updatedTask.toJSON()
+}
+
 export const deleteTask = async (id: string) => {
-  const taskIndex = tasks.findIndex((task) => task.id === id)
-  if (taskIndex === -1) throw new AppError('Task not found', 404)
-  const deleted = tasks.splice(taskIndex, 1)[0]
+  const task = await TaskModel.findByPk(id)
+
+  if (!task) {
+    throw new AppError("Task not found", 404)
+  }
+
+  const deleted = task.toJSON()
+  await task.destroy()
   return deleted
 }
