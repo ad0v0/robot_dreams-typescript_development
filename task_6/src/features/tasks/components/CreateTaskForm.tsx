@@ -61,7 +61,7 @@ export default function CreateTaskForm({ onCreated }: Props) {
 
         <form id="createForm" onSubmit={handleSubmit(onSubmit)} noValidate>
           <label>
-            Name *
+            Title *
             <input
               {...register('title')}
               type="text"
@@ -73,7 +73,7 @@ export default function CreateTaskForm({ onCreated }: Props) {
           {errors.title && <p className="error">{errors.title.message}</p>}
 
           <label>
-            Description
+            Description *
             <input
               {...register('description')}
               type="text"
@@ -102,7 +102,7 @@ export default function CreateTaskForm({ onCreated }: Props) {
           </label>
 
           <label>
-            Deadline
+            Deadline *
             <input
               {...register('deadline')}
               type="date"
