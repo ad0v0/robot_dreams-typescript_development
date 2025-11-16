@@ -50,15 +50,15 @@ export async function filterTasks(filter: TaskFilter): Promise<Task[]> {
   const params = new URLSearchParams()
 
   if (filter.status) {
-    params.append('status', filter.status as string)
+    params.append('status', filter.status)
   }
 
   if (filter.priority) {
-    params.append('priority', filter.priority as string)
+    params.append('priority', filter.priority)
   }
 
   if (filter.createdAt) {
-    params.append('createdAt', (filter.createdAt as Date).toISOString())
+    params.append('createdAt', (filter.createdAt).toISOString())
   }
 
   const response = await fetch(`${TASKS}?${params.toString()}`)

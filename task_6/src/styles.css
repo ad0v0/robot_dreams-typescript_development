@@ -117,3 +117,40 @@ input.error {
 p.error {
   color: darkred;
 }
+
+/* Addition  */
+
+.toast {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background: mediumseagreen;
+  color: #fff;
+  padding: 10px 14px;
+  border-radius: 6px;
+  opacity: 0.9;
+}
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: rgba(0, 0, 0, 0.3);
+}
+
+.modal {
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  width: 280px;
+  text-align: center;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 14px;
+}

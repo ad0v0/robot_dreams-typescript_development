@@ -28,8 +28,9 @@ function Tasks() {
     }
   }
 
-  async function handleDeleteConfirmed(id: string) {
+  async function handleDeleteConfirmed(id: string | null) {
     try {
+      if (!id) return
       await deleteTask(id)
       showToast('Task deleted')
       loadTasks()

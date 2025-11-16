@@ -38,7 +38,7 @@ export default function TaskDetailsView() {
 
   if (error) {
     return (
-      <p style={{ color: 'red' }}>{error}</p>
+      <p className="error">{error}</p>
     )
   }
 
