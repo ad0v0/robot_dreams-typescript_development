@@ -5,8 +5,8 @@ import { DEFAULT_PRIORITY, DEFAULT_STATUS } from '../constants/constants'
 export const TaskSchema = z.object({
   title: z.string().min(4, 'Title is required and must contain at least 4 characters. Why 4? Can you meow?'),
   description: z.string().or(z.literal('')),
-  status: z.enum(TASK_STATUSES).default(DEFAULT_STATUS),
-  priority: z.enum(TASK_PRIORITIES).default(DEFAULT_PRIORITY),
+  status: z.enum(TASK_STATUSES).catch(DEFAULT_STATUS),
+  priority: z.enum(TASK_PRIORITIES).catch(DEFAULT_PRIORITY),
   deadline: z
     .string()
     .refine((value) => {

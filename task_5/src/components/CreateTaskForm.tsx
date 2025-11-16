@@ -38,7 +38,7 @@ export default function CreateTaskForm({ onCreated }: Props) {
       description: data.description,
       status: data.status,
       priority: data.priority,
-      deadline: data.deadline,
+      deadline: new Date(data.deadline),
     }
 
     try {
