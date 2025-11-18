@@ -1,6 +1,9 @@
 export type Status = 'todo' | 'in_progress' | 'done'
 export type Priority = 'high' | 'medium' | 'low'
 
+export const TASK_STATUSES = ['todo', 'in_progress', 'done'] as const
+export const TASK_PRIORITIES = ['low', 'medium', 'high'] as const
+
 export interface TaskFilter {
   status?: Status
   priority?: Priority
@@ -12,7 +15,7 @@ export interface Task {
   title: string
   description: string
   createdAt: Date
-  status?: Status
-  priority?: Priority
+  status: Status
+  priority: Priority
   deadline: Date
 }

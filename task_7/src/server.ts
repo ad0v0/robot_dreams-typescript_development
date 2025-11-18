@@ -1,6 +1,6 @@
 import morgan from 'morgan'
 import cors from 'cors'
-import express, { Request, Response, NextFunction } from 'express'
+import express, { Request, Response } from 'express'
 
 import taskRoutes from './routes/task.routes'
 import AppError from './error'
@@ -18,7 +18,7 @@ app.get('/', (req: Request, res: Response) => {
 
 app.use('/tasks', taskRoutes)
 
-app.use((error: unknown, req: Request, res: Response, next: NextFunction) => {
+app.use((error: unknown, req: Request, res: Response) => {
   if (error instanceof AppError) {
     console.error('AppError:', error.message)
     return res.status(error.statusCode).json({ error: error.message })
@@ -26,7 +26,7 @@ app.use((error: unknown, req: Request, res: Response, next: NextFunction) => {
 
   if (error instanceof Error) {
     console.error('Error:', error.message)
-    return error.status(500).json({ error: error.message })
+    return res.status(500).json({ error: error.message })
   }
 
   console.error('Unknown Error:', error)

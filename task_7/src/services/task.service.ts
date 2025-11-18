@@ -1,21 +1,30 @@
 import { v4 as uuidv4 } from 'uuid'
 
-import { Task, TaskFilter} from '../types/task.types'
+import { Task, TaskFilter } from '../types/task.types'
 import { tasks } from '../database/data'
 import AppError from '../error'
 
-export const getTasks = async (filters?: TaskFilter) => {
+export const getTasks = async (filters?: unknown | TaskFilter) => {
   let result = tasks
 
   if (filters) {
     if (filters.status) {
       result = result.filter((task) => task.status === filters.status)
     }
+
     if (filters.priority) {
       result = result.filter((task) => task.priority === filters.priority)
     }
+
     if (filters.createdAt) {
-      result = result.filter((task) => task.createdAt.startsWith(filters.createdAt))
+      const filterDate = new Date(filters.createdAt)
+      filterDate.setHours(0, 0, 0, 0)
+
+      result = result.filter((task) => {
+        const taskDate = new Date(task.createdAt)
+        taskDate.setHours(0, 0, 0, 0)
+        return taskDate.getTime() === filterDate.getTime()
+      })
     }
   }
 
@@ -30,7 +39,7 @@ export const addTask = async (task: Omit<Task, 'id' | 'createdAt'>) => {
   const newTask: Task = {
     ...task,
     id: uuidv4(),
-    createdAt: new Date().toISOString(),
+    createdAt: new Date(),
   }
   tasks.push(newTask)
   return newTask
@@ -48,6 +57,5 @@ export const updateTask = async (id: string, updatedFields: Partial<Task>) => {
 export const deleteTask = async (id: string) => {
   const taskIndex = tasks.findIndex((task) => task.id === id)
   if (taskIndex === -1) throw new AppError('Task not found', 404)
-  const deleted = tasks.splice(taskIndex, 1)[0]
-  return deleted
+  return tasks.splice(taskIndex, 1)[0]
 }
