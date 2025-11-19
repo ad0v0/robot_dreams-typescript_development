@@ -8,9 +8,10 @@ import {
   deleteTask,
 } from '../services/task.service'
 import AppError from '../error'
+import type { TaskFilter } from '../types/task.types'
 
-export const getAllTasks = async (req: Request<{ id: string }>, res: Response) => {
-  const filters = req.validatedQuery ?? {}
+export const getAllTasks = async (req: Request, res: Response) => {
+  const filters = (req.validatedQuery ? (req.validatedQuery as unknown as TaskFilter) : undefined)
   const tasks = await getTasks(filters)
   res.json(tasks)
 }
@@ -25,7 +26,7 @@ export const getTaskDetails = async (req: Request<{ id: string }>, res: Response
   res.json(task)
 }
 
-export const createTask = async (req: Request<{ id: string }>, res: Response) => {
+export const createTask = async (req: Request, res: Response) => {
   const newTask = await addTask(req.body)
   res.status(201).json(newTask)
 }

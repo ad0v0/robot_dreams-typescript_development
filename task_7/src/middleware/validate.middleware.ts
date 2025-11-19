@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express'
-import { z, ZodTypeAny } from 'zod'
+import { z, ZodType } from 'zod'
 import AppError from '../error'
 
 declare module 'express-serve-static-core' {
@@ -17,16 +17,16 @@ function handleError(error: unknown, next: NextFunction) {
   return next(error)
 }
 
-export const validateBody = <T extends ZodTypeAny>(schema: T) => (req: Request, _res: Response, next: NextFunction) => {
+export const validateBody = <T extends ZodType<unknown>>(schema: T) => (req: Request, _res: Response, next: NextFunction) => {
   try {
     req.validatedBody = schema.parse(req.body)
     next()
-  } catch (err) {
-    handleError(err, next)
+  } catch (error) {
+    handleError(error, next)
   }
 }
 
-export const validateQuery = <T extends ZodTypeAny>(schema: T) => (req: Request, _res: Response, next: NextFunction) => {
+export const validateQuery = <T extends ZodType<unknown>>(schema: T) => (req: Request, _res: Response, next: NextFunction) => {
   try {
     req.validatedQuery = schema.parse(req.query)
     next()

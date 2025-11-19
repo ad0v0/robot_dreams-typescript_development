@@ -4,7 +4,7 @@ import { Task, TaskFilter } from '../types/task.types'
 import { tasks } from '../database/data'
 import AppError from '../error'
 
-export const getTasks = async (filters?: unknown | TaskFilter) => {
+export const getTasks = async (filters?: TaskFilter) => {
   let result = tasks
 
   if (filters) {
@@ -41,7 +41,6 @@ export const addTask = async (task: Omit<Task, 'id' | 'createdAt'>) => {
     id: uuidv4(),
     createdAt: new Date(),
   }
-  tasks.push(newTask)
   return newTask
 }
 

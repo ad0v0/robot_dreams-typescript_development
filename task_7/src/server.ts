@@ -24,13 +24,9 @@ app.use((error: unknown, req: Request, res: Response) => {
     return res.status(error.statusCode).json({ error: error.message })
   }
 
-  if (error instanceof Error) {
-    console.error('Error:', error.message)
-    return res.status(500).json({ error: error.message })
-  }
-
-  console.error('Unknown Error:', error)
-  return res.status(500).json({ error: 'Internal Server Error' })
+  return res.status(500).json({
+    error: error instanceof Error ? error.message : 'Internal Server Error'
+  })
 })
 
 if (require.main === module) {
