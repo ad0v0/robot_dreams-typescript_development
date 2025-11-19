@@ -23,6 +23,7 @@ describe('Tasks API', () => {
         status: 'todo',
         priority: 'medium',
         assigneeId: user.id,
+        deadline: new Date()
       })
       .expect(201)
 

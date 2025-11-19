@@ -8,11 +8,11 @@ export const getTasks = async (filters?: TaskFilter) => {
   const appliedFilters = {}
 
   if (filters?.status) {
-    Object.assign(appliedFilters, { active: filters.status })
+    Object.assign(appliedFilters, { status: filters.status })
   }
 
   if (filters?.priority) {
-    Object.assign(appliedFilters, { active: filters.priority })
+    Object.assign(appliedFilters, { priority: filters.priority })
   }
 
   if (filters?.createdAt) {

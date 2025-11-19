@@ -21,6 +21,12 @@ async function main() {
 
 main()
 
+const PORT = 3000
+
+app.listen(PORT, () => {
+  console.log(`Server running at http://localhost:${PORT}`)
+})
+
 app.use('/tasks', taskRoutes)
 
 app.use((error: unknown, req: Request, res: Response) => {
@@ -38,17 +44,14 @@ app.use((error: unknown, req: Request, res: Response) => {
     return res.status(400).json({ error: `Invalid input: ${message}` })
   }
 
-  if (error instanceof Error) {
-    console.error('Error:', error.stack ?? error.message)
-    return res.status(500).json({ error: 'Internal Server Error' })
-  }
-
-  console.error('Unknown error:', error)
-  return res.status(500).json({ error: 'Internal Server Error' })
+  return res.status(500).json({
+    error: error instanceof Error ? error.message : 'Internal Server Error'
+  })
 })
 
 app.use((error: AppError, req: Request, res: Response) => {
   res.status(error.statusCode).send(error.message)
 })
+
 
 export default app
