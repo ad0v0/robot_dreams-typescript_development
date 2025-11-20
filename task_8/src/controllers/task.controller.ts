@@ -8,7 +8,7 @@ import {
   deleteTask,
 } from '../services/task.service'
 import AppError from '../error'
-import { TaskFilter } from '../../../task_7/src/types/task.types'
+import { TaskFilter } from '../types/task.types'
 
 export const getAllTasks = async (req: Request, res: Response) => {
   const filters = (req.validatedQuery ? (req.validatedQuery as unknown as TaskFilter) : undefined)

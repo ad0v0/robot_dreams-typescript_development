@@ -13,13 +13,9 @@ export default defineConfig([
   },
   tseslint.configs.recommended,
   {
-    plugins: { prettier: prettierPlugin },
-  },
-  {
     files: ["**/*.ts", "**/*.mts", "**/*.cts"],
     rules: {
       "@typescript-eslint/no-explicit-any": "error",
-      "prettier/prettier": "error",
     },
   },
 ])

@@ -9,7 +9,8 @@
     "build": "tsc",
     "lint": "eslint . ",
     "lint:fix": "eslint . --fix",
-    "prepare": "husky"
+    "prepare": "husky",
+    "delete-tasks": "ts-node src/delete-tasks.ts"
   },
   "keywords": [],
   "author": "",

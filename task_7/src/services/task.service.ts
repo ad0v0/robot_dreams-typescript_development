@@ -16,15 +16,17 @@ export const getTasks = async (filters?: TaskFilter) => {
       result = result.filter((task) => task.priority === filters.priority)
     }
 
-    if (filters.createdAt) {
-      const filterDate = new Date(filters.createdAt)
-      filterDate.setHours(0, 0, 0, 0)
+    if (filters?.createdAt) {
+      const dayStart = new Date(filters.createdAt)
+      dayStart.setHours(0, 0, 0, 0)
 
-      result = result.filter((task) => {
-        const taskDate = new Date(task.createdAt)
-        taskDate.setHours(0, 0, 0, 0)
-        return taskDate.getTime() === filterDate.getTime()
-      })
+      const dayEnd = new Date(dayStart)
+      dayEnd.setDate(dayEnd.getDate() + 1)
+
+      appliedFilters.createdAt = {
+        [Op.gte]: dayStart,
+        [Op.lt]: dayEnd,
+      }
     }
   }
 

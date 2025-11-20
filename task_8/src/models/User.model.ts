@@ -9,8 +9,13 @@ import {
 } from 'sequelize-typescript'
 import TaskModel from './Task.model'
 
+interface UserCreationAttributes {
+  name: string
+  email: string
+}
+
 @Table({ tableName: 'users' })
-export default class UserModel extends Model<UserModel> {
+export default class UserModel extends Model<UserModel, UserCreationAttributes> {
   @Column({
     type: DataType.UUID,
     primaryKey: true,
@@ -18,17 +23,10 @@ export default class UserModel extends Model<UserModel> {
   })
   declare id: string
 
-  @Column({
-    type: DataType.STRING(150),
-    allowNull: false,
-  })
+  @Column({ type: DataType.STRING(150), allowNull: false })
   declare name: string
 
-  @Column({
-    type: DataType.STRING(254),
-    allowNull: false,
-    unique: true,
-  })
+  @Column({ type: DataType.STRING(254), allowNull: false, unique: true })
   declare email: string
 
   @CreatedAt

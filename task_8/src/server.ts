@@ -27,6 +27,12 @@ app.listen(PORT, () => {
   console.log(`Server running at http://localhost:${PORT}`)
 })
 
+app.get('/favicon.ico', (req, res) => res.status(204).end())
+
+app.get('/', (req: Request, res: Response) => {
+  res.send('Hello, TypeScript with Express!')
+})
+
 app.use('/tasks', taskRoutes)
 
 app.use((error: unknown, req: Request, res: Response) => {

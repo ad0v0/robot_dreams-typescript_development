@@ -39,8 +39,8 @@ describe('Tasks API', () => {
     expect(resEmpty.body).toHaveLength(0)
 
     const user = await UserModel.create({ name: 'Olha', email: 'olha@example.com' })
-    await TaskModel.create({ title: 'Task 1', status: 'todo', priority: 'low', assigneeId: user.id })
-    await TaskModel.create({ title: 'Task 2', status: 'in_progress', priority: 'high', assigneeId: user.id })
+    await TaskModel.create({ title: 'Task 1', status: 'todo', priority: 'low', deadline: new Date('2025-11-30'), assigneeId: user.id })
+    await TaskModel.create({ title: 'Task 2', status: 'in_progress', priority: 'high', deadline: new Date('2025-11-30'), assigneeId: user.id })
 
     const response = await request(app).get('/tasks').expect(200)
     expect(Array.isArray(response.body)).toBe(true)
@@ -49,7 +49,7 @@ describe('Tasks API', () => {
 
   it('GET /tasks/:id returns task details', async () => {
     const user = await UserModel.create({ name: 'Olha', email: 'olha@example.com' })
-    const task = await TaskModel.create({ title: 'Task 1', status: 'todo', priority: 'low', assigneeId: user.id })
+    const task = await TaskModel.create({ title: 'Task 1', status: 'todo', priority: 'low', deadline: new Date('2025-11-30'), assigneeId: user.id })
 
     const response = await request(app).get(`/tasks/${task.id}`).expect(200)
     expect(response.body.id).toBe(task.id)
@@ -60,7 +60,7 @@ describe('Tasks API', () => {
 
   it('PUT /tasks/:id updates a task', async () => {
     const user = await UserModel.create({ name: 'Olha', email: 'olha@example.com' })
-    const task = await TaskModel.create({ title: 'Task 1', status: 'todo', priority: 'low', assigneeId: user.id })
+    const task = await TaskModel.create({ title: 'Task 1', status: 'todo', priority: 'low', deadline: new Date('2025-11-30'), assigneeId: user.id })
 
     const response = await request(app)
       .put(`/tasks/${task.id}`)
@@ -75,7 +75,7 @@ describe('Tasks API', () => {
 
   it('DELETE /tasks/:id deletes a task', async () => {
     const user = await UserModel.create({ name: 'Olha', email: 'olha@example.com' })
-    const task = await TaskModel.create({ title: 'Task 1', status: 'todo', priority: 'low', assigneeId: user.id })
+    const task = await TaskModel.create({ title: 'Task 1', status: 'todo', priority: 'low', deadline: new Date('2025-11-30'), assigneeId: user.id })
 
     await request(app).delete(`/tasks/${task.id}`).expect(200)
 

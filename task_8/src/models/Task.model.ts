@@ -9,13 +9,19 @@ import {
   UpdatedAt,
 } from 'sequelize-typescript'
 import UserModel from './User.model'
+import type { Status, Priority } from '../types/task.types'
 
-export type Status = 'todo' | 'in_progress' | 'done'
-export type Priority = 'low' | 'medium' | 'high'
+interface TaskCreationAttributes {
+  title: string
+  description?: string | null
+  status?: Status
+  priority?: Priority
+  deadline: Date | null
+  assigneeId?: string | null
+}
 
 @Table({ tableName: 'tasks' })
-
-export default class TaskModel extends Model<TaskModel> {
+export default class TaskModel extends Model<TaskModel, TaskCreationAttributes> {
   @Column({
     type: DataType.UUID,
     primaryKey: true,
@@ -43,8 +49,8 @@ export default class TaskModel extends Model<TaskModel> {
   })
   declare priority: Priority
 
-  @Column({ type: DataType.DATE, allowNull: true })
-  declare deadline?: Date | null
+  @Column({ type: DataType.DATE, allowNull: false, defaultValue: () => new Date(Date.now() + 7*24*60*60*1000) })
+  declare deadline: Date
 
   @ForeignKey(() => UserModel)
   @Column({ type: DataType.UUID, allowNull: true })
