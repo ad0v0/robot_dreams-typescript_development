@@ -1,7 +1,7 @@
 import morgan from 'morgan'
 import cors from 'cors'
-import express, { Request, Response } from 'express'
-import { ZodError, ZodIssue } from 'zod'
+import express, { Request, Response, NextFunction } from 'express'
+import { ZodError } from 'zod'
 import 'reflect-metadata'
 
 import db from './config/database'
@@ -35,15 +35,16 @@ app.get('/', (req: Request, res: Response) => {
 
 app.use('/tasks', taskRoutes)
 
-app.use((error: unknown, req: Request, res: Response) => {
+/* eslint-disable @typescript-eslint/no-unused-vars */
+app.use((error: unknown, req: Request, res: Response, next: NextFunction) => {
   if (error instanceof AppError) {
     console.error('AppError:', error.message)
     return res.status(error.statusCode).json({ error: error.message })
   }
 
   if (error instanceof ZodError) {
-    const issues: ZodIssue[] = error.issues
-    const message = issues.map((issue: ZodIssue) => issue.message ?? 'Invalid input').join('; ')
+    const issues = error.issues
+    const message = issues.map((issue) => issue.message ?? 'Invalid input').join('; ')
 
     console.error('ZodError:', message)
 
