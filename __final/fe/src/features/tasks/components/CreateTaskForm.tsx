@@ -54,9 +54,11 @@ export default function CreateTaskForm({ onCreated }: Props) {
 
   return (
     <>
-      {toast && <div className="toast">{toast}</div>}
+      {toast && (
+        <div className="toast">{toast}</div>
+      )}
 
-      <aside className="form">
+      <section className="form">
         <h2>What will I do next...</h2>
 
         <form id="createForm" onSubmit={handleSubmit(onSubmit)} noValidate>
@@ -119,7 +121,7 @@ export default function CreateTaskForm({ onCreated }: Props) {
             </button>
           </div>
         </form>
-      </aside>
+      </section>
     </>
   )
 }

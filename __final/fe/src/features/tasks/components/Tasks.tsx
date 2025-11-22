@@ -1,19 +1,19 @@
 import { useEffect, useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
+
+import {
+  DndContext,
+  PointerSensor,
+  useSensor,
+  useSensors
+} from '@dnd-kit/core'
+import type { DragEndEvent } from '@dnd-kit/core'
 
 import { getTasks, deleteTask, updateTask } from '../api'
 import type { Task } from '../types'
-import { formatDate, getErrorMessage } from '../../../shared/utils/utils'
-
-const STATUSES: {
-  key: Task['status']
-  label: string
-}[] = [
-  { key: 'todo', label: 'To Do' },
-  { key: 'in_progress', label: 'In Progress' },
-  { key: 'review', label: 'Review' },
-  { key: 'done', label: 'Done' },
-]
+import { getErrorMessage } from '../../../shared/utils/utils'
+import BoardColumn from './BoardColumn'
+import { STATUSES } from '../../../shared/constants/constants'
 
 function Tasks() {
   const navigate = useNavigate()
@@ -23,6 +23,9 @@ function Tasks() {
   const [error, setError] = useState<string>('')
   const [toast, setToast] = useState<string>('')
   const [confirmId, setConfirmId] = useState<string | null>(null)
+
+  const pointer = useSensor(PointerSensor, { activationConstraint: { distance: 5 } })
+  const sensors = useSensors(pointer)
 
   function showToast(message: string) {
     setToast(message)
@@ -71,6 +74,34 @@ function Tasks() {
     }
   }
 
+  const handleDragEnd = async (event: DragEndEvent) => {
+    const { active, over } = event
+
+    if (!over) return
+
+    const draggedId = active.id
+    const destStatus = over.id
+
+    const task = tasks.find((task) => task.id === draggedId)
+
+    if (!task) return
+    if (task.status === destStatus) return
+
+    const updated = tasks.map((task) => (
+      task.id === draggedId ? { ...task, status: destStatus as Task['status'] } : task)
+    )
+    setTasks(updated)
+
+    try {
+      await updateTask(String(draggedId), { status: destStatus as Task['status'] })
+      showToast(`Moved to ${destStatus}`)
+    } catch (err) {
+      console.error('Drag update failed:', getErrorMessage(err))
+      showToast('Failed to move task — reverting')
+      loadTasks()
+    }
+  }
+
   if (loading) {
     return (
       <p>Loading...</p>
@@ -78,9 +109,7 @@ function Tasks() {
   }
 
   if (error) {
-    return (
-      <p className="error">{error}</p>
-    )
+    return <p className="error">{error}</p>
   }
 
   const groupedTasks = STATUSES.reduce<Record<string, Task[]>>((acc, status) => {
@@ -97,7 +126,7 @@ function Tasks() {
       {confirmId && (
         <div className="modal-overlay">
           <div className="modal">
-            <p>Are you sure you want to delete this task?</p>
+            <p>Are you sure you want to delete this task? This may summon Bagagwa.</p>
 
             <div className="modal-actions">
               <button onClick={() => handleDeleteConfirmed(confirmId)}>Yes</button>
@@ -115,61 +144,20 @@ function Tasks() {
           </div>
         </div>
 
-        <div className="columns">
-          {STATUSES.map((status) => (
-            <div key={status.key} className="column">
-              <h3>{status.label} ({groupedTasks[status.key]?.length ?? 0})</h3>
-
-              <div className="column-list">
-                {(groupedTasks[status.key] && groupedTasks[status.key].length > 0) ? (
-                  groupedTasks[status.key].map((task) => (
-                    <div key={task.id} className="task-card">
-                      <div className="ask-card-header">
-                        <Link to={`/tasks/${encodeURIComponent(task.id)}`}>{task.title}</Link><br />
-                        <small>Priority: {task.priority}</small>
-                      </div>
-
-                      <div className="task-card-body">
-                        <small>{task.description}</small>
-                        <div className="metadata">
-                          <span>Created: {formatDate(task.createdAt)}</span><br />
-                          <span>Due date: {task.deadline ? formatDate(task.deadline) : '—'}</span>
-                        </div>
-                      </div>
-
-                      <div className="task-card-actions">
-                        <div className="status-controls">
-                          {STATUSES.map((target) =>
-                            target.key !== task.status ? (
-                              <button
-                                key={target.key}
-                                className="small"
-                                onClick={() => changeStatus(task.id, target.key)}
-                                title={`Move to ${target.label}`}
-                              >
-                                Move to {target.label}
-                              </button>
-                            ) : null
-                          )}
-                        </div>
-
-                        <div className="controls">
-                          <Link to={`/tasks/${encodeURIComponent(task.id)}/edit`}>
-                            <button className="small">Edit</button>
-                          </Link>
-
-                          <button className="small" onClick={() => setConfirmId(task.id)}>Delete</button>
-                        </div>
-                      </div>
-                    </div>
-                  ))
-                ) : (
-                  <p className="empty">—</p>
-                )}
-              </div>
-            </div>
-          ))}
-        </div>
+        <DndContext sensors={sensors} onDragEnd={handleDragEnd}>
+          <div className="columns">
+            {STATUSES.map((status) => (
+              <BoardColumn
+                key={status.key}
+                statusKey={status.key}
+                label={status.label}
+                tasks={groupedTasks[status.key] ?? []}
+                onQuickMove={changeStatus}
+                onDelete={(id) => setConfirmId(id)}
+              />
+            ))}
+          </div>
+        </DndContext>
       </section>
     </>
   )

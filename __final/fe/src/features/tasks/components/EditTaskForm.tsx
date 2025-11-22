@@ -5,7 +5,8 @@ import { useNavigate } from 'react-router-dom'
 
 import type { Task } from '../types'
 import { getTaskDetails, updateTask } from '../api'
-import TaskSchema, { type TaskFormData } from '../../../shared/schemas/task.schema'
+import TaskSchema from '../../../shared/schemas/task.schema'
+import type { TaskFormData } from '../../../shared/schemas/task.schema'
 import { getErrorMessage } from '../../../shared/utils/utils'
 
 type Props = {
@@ -80,52 +81,58 @@ export default function EditTaskForm({ id, onUpdated }: Props) {
 
   return (
     <>
-      {toast && <div className="toast">{toast}</div>}
+      {toast && (
+        <div className="toast">{toast}</div>
+      )}
 
-      <form onSubmit={handleSubmit(onSubmit)} noValidate>
-        <label>
-          Title *
-          <input {...register('title')} />
-        </label>
-        {errors.title && <p className="error">{errors.title.message}</p>}
+      <section className="form">
+        <h2>Update the task...</h2>
 
-        <label>
-          Description
-          <input {...register('description')} />
-        </label>
-        {errors.description && <p className="error">{errors.description?.message}</p>}
+        <form onSubmit={handleSubmit(onSubmit)} noValidate>
+          <label>
+            Title *
+            <input {...register('title')} />
+          </label>
+          {errors.title && <p className="error">{errors.title.message}</p>}
 
-        <label>
-          Status *
-          <select {...register('status')}>
-            <option value="todo">todo</option>
-            <option value="in_progress">in_progress</option>
-            <option value="review">review</option>
-            <option value="done">done</option>
-          </select>
-        </label>
+          <label>
+            Description
+            <input {...register('description')} />
+          </label>
+          {errors.description && <p className="error">{errors.description?.message}</p>}
 
-        <label>
-          Priority *
-          <select {...register('priority')}>
-            <option value="low">low</option>
-            <option value="medium">medium</option>
-            <option value="high">high</option>
-          </select>
-        </label>
+          <label>
+            Status *
+            <select {...register('status')}>
+              <option value="todo">todo</option>
+              <option value="in_progress">in_progress</option>
+              <option value="review">review</option>
+              <option value="done">done</option>
+            </select>
+          </label>
 
-        <label>
-          Deadline *
-          <input {...register('deadline')} type="date" />
-        </label>
-        {errors.deadline && <p className="error">{errors.deadline.message}</p>}
+          <label>
+            Priority *
+            <select {...register('priority')}>
+              <option value="low">low</option>
+              <option value="medium">medium</option>
+              <option value="high">high</option>
+            </select>
+          </label>
 
-        <div className="form-actions">
-          <button type="submit" disabled={!isValid || isSubmitting}>
-            {isSubmitting ? 'Saving...' : 'Save changes'}
-          </button>
-        </div>
-      </form>
+          <label>
+            Deadline *
+            <input {...register('deadline')} type="date" />
+          </label>
+          {errors.deadline && <p className="error">{errors.deadline.message}</p>}
+
+          <div className="form-actions">
+            <button type="submit" disabled={!isValid || isSubmitting}>
+              {isSubmitting ? 'Saving...' : 'Save changes'}
+            </button>
+          </div>
+        </form>
+      </section>
     </>
   )
 }
