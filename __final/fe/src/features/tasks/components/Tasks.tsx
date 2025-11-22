@@ -5,7 +5,10 @@ import { getTasks, deleteTask, updateTask } from '../api'
 import type { Task } from '../types'
 import { formatDate, getErrorMessage } from '../../../shared/utils/utils'
 
-const STATUSES: { key: string; label: string }[] = [
+const STATUSES: {
+  key: Task['status']
+  label: string
+}[] = [
   { key: 'todo', label: 'To Do' },
   { key: 'in_progress', label: 'In Progress' },
   { key: 'review', label: 'Review' },
@@ -49,8 +52,6 @@ function Tasks() {
       showToast('Task deleted')
 
       loadTasks()
-
-      // setTasks((prevTask) => prevTask.filter((t) => t.id !== id))
     } catch (error) {
       console.error('Failed to delete task:', getErrorMessage(error))
       showToast('Error while deleting task')
@@ -64,8 +65,6 @@ function Tasks() {
       await updateTask(taskId, { status: newStatus })
       showToast('Status updated')
       loadTasks()
-
-      // setTasks((prev) => prev.map((t) => (t.id === taskId ? { ...t, status: newStatus } : t)))
     } catch (error) {
       console.error('Failed to update status: ', getErrorMessage(error))
       showToast('Failed to update status')

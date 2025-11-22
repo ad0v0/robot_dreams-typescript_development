@@ -28,32 +28,30 @@ export default function EditTaskForm({ id, onUpdated }: Props) {
     mode: 'onChange'
   })
 
-  function showToast(msg: string) {
-    setToast(msg)
+  function showToast(message: string) {
+    setToast(message)
     setTimeout(() => setToast(''), 2000)
   }
 
   useEffect(() => {
-    async function load() {
+    async function loadTask() {
       try {
         setLoading(true)
         const data: Task = await getTaskDetails(id)
-        // наповнюємо форму значеннями
         reset({
           title: data.title,
-          description: data.description ?? '',
+          description: data.description,
           status: data.status,
           priority: data.priority,
-          // ISO date for input type=date
           deadline: data.deadline ? new Date(data.deadline).toISOString().slice(0, 10) : ''
         })
-      } catch (err) {
-        showToast('Failed to load task: ' + getErrorMessage(err))
+      } catch (error) {
+        showToast('Failed to load task: ' + getErrorMessage(error))
       } finally {
         setLoading(false)
       }
     }
-    load()
+    loadTask()
   }, [id, reset])
 
   const onSubmit = async (data: TaskFormData) => {
@@ -98,7 +96,7 @@ export default function EditTaskForm({ id, onUpdated }: Props) {
         {errors.description && <p className="error">{errors.description?.message}</p>}
 
         <label>
-          Status
+          Status *
           <select {...register('status')}>
             <option value="todo">todo</option>
             <option value="in_progress">in_progress</option>
@@ -108,7 +106,7 @@ export default function EditTaskForm({ id, onUpdated }: Props) {
         </label>
 
         <label>
-          Priority
+          Priority *
           <select {...register('priority')}>
             <option value="low">low</option>
             <option value="medium">medium</option>

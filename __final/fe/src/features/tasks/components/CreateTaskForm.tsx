@@ -84,7 +84,7 @@ export default function CreateTaskForm({ onCreated }: Props) {
           {errors.description && <p className="error">{errors.description.message}</p>}
 
           <label>
-            Status
+            Status *
             <select {...register('status')} className="input">
               <option value="todo">todo</option>
               <option value="in_progress">in_progress</option>
@@ -94,7 +94,7 @@ export default function CreateTaskForm({ onCreated }: Props) {
           </label>
 
           <label>
-            Priority
+            Priority *
             <select {...register('priority')} className="input">
               <option value="low">low</option>
               <option value="medium">medium</option>
