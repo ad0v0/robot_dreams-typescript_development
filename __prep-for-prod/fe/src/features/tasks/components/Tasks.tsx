@@ -1,9 +1,17 @@
+// components/Tasks.tsx
 import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 
 import { getTasks, deleteTask, updateTask } from '../api'
 import type { Task } from '../types'
 import { formatDate, getErrorMessage } from '../../../shared/utils/utils'
+
+const STATUSES: { key: Task['status']; label: string }[] = [
+  { key: 'todo', label: 'To Do' },
+  { key: 'in_progress', label: 'In Progress' },
+  { key: 'review', label: 'Review' },
+  { key: 'done', label: 'Done' },
+]
 
 function Tasks() {
   const navigate = useNavigate()
@@ -24,37 +32,10 @@ function Tasks() {
       setLoading(true)
       const data = await getTasks()
       setTasks(data)
-    } catch (error) {
-      setError('Failed to load tasks due to: ' + getErrorMessage(error))
+    } catch (err) {
+      setError('Failed to load tasks due to: ' + getErrorMessage(err))
     } finally {
       setLoading(false)
-    }
-  }
-
-  async function handleDeleteConfirmed(id: string | null) {
-    try {
-      if (!id) return
-      await deleteTask(id)
-      showToast('Task deleted')
-      loadTasks()
-    } catch (error) {
-      console.error('Failed to create a task due to: ', getErrorMessage(error))
-      showToast('Error while deleting task')
-    } finally {
-      setConfirmId(null)
-    }
-  }
-
-  async function handleToggleStatus(currentTask: Task): Promise<void> {
-    const newStatus = currentTask.status === 'done' ? 'todo' : 'done'
-
-    try {
-      await updateTask(currentTask.id, { status: newStatus })
-      showToast('Status updated️')
-      loadTasks()
-    } catch (error) {
-      console.error('Failed to create a task due to: ', getErrorMessage(error))
-      showToast('Failed to update status')
     }
   }
 
@@ -62,17 +43,40 @@ function Tasks() {
     loadTasks()
   }, [])
 
-  if (loading) {
-    return (
-      <p>Loading...</p>
-    )
+  async function handleDeleteConfirmed(id: string | null) {
+    try {
+      if (!id) return
+      await deleteTask(id)
+      showToast('Task deleted')
+      // локально прибираєм без повного reload
+      setTasks((prev) => prev.filter((t) => t.id !== id))
+    } catch (err) {
+      console.error('Failed to delete task:', getErrorMessage(err))
+      showToast('Error while deleting task')
+    } finally {
+      setConfirmId(null)
+    }
   }
 
-  if (error) {
-    return (
-      <p className="error">{error}</p>
-    )
+  async function changeStatus(taskId: string, newStatus: Task['status']) {
+    try {
+      await updateTask(taskId, { status: newStatus })
+      showToast('Status updated')
+      setTasks((prev) => prev.map((t) => (t.id === taskId ? { ...t, status: newStatus } : t)))
+    } catch (err) {
+      console.error('Failed to update status: ', getErrorMessage(err))
+      showToast('Failed to update status')
+    }
   }
+
+  if (loading) return <p>Loading...</p>
+  if (error) return <p className="error">{error}</p>
+
+  // групуємо задачі по статусах
+  const grouped = STATUSES.reduce<Record<string, Task[]>>((acc, s) => {
+    acc[s.key] = tasks.filter((t) => t.status === s.key)
+    return acc
+  }, {} as Record<string, Task[]>)
 
   return (
     <>
@@ -93,45 +97,69 @@ function Tasks() {
         </div>
       )}
 
-      <section className="tasks">
-        <h2>On my plate...</h2>
-
-        <div style={{ marginBottom: 12 }}>
-          <button onClick={() => navigate('/tasks/create')}>Create task</button>
+      <section className="tasks-board">
+        <div className="board-header">
+          <h2>On my plate...</h2>
+          <div>
+            <button onClick={() => navigate('/tasks/create')}>Create task</button>
+          </div>
         </div>
 
-        <div className="tasks-list">
-          {tasks.length === 0 ? (
-            <p>Denis — the Great Performer. Everything is done.</p>
-          ) : (
-            tasks.map((task) => (
-              <div key={task.id} className="task">
-                <h3>
-                  <Link to={`/tasks/${encodeURIComponent(task.id)}`}>{task.title}</Link>
-                </h3>
-                <small>{task.description}</small>
+        <div className="columns">
+          {STATUSES.map((s) => (
+            <div key={s.key} className="column">
+              <h3>{s.label} ({grouped[s.key]?.length ?? 0})</h3>
 
-                <div className="task-details">
-                  <div>Created: {formatDate(task.createdAt)}</div>
-                  <div>Deadline: {task.deadline ? formatDate(task.deadline) : '—'}</div>
-                  <div>
-                    Status:
-                    <span className={`status ${task.status}`}>{task.status}</span> • priority: {task.priority}
-                  </div>
-                </div>
+              <div className="column-list">
+                {(grouped[s.key] && grouped[s.key].length > 0) ? (
+                  grouped[s.key].map((task) => (
+                    <div key={task.id} className="task-card">
+                      <div className="task-card-head">
+                        <Link to={`/tasks/${encodeURIComponent(task.id)}`}>{task.title}</Link>
+                        <small>{task.priority}</small>
+                      </div>
 
-                <div className="task-controls">
-                  <button onClick={() => handleToggleStatus(task)}>
-                    {task.status === 'done' ? 'Mark as todo' : 'Mark as done'}
-                  </button>
+                      <div className="task-card-body">
+                        <small>{task.description}</small>
+                        <div className="meta">
+                          <span>Created: {formatDate(task.createdAt)}</span>
+                          <span>Due: {task.deadline ? formatDate(task.deadline) : '—'}</span>
+                        </div>
+                      </div>
 
-                  <button onClick={() => setConfirmId(task.id)}>
-                    Delete
-                  </button>
-                </div>
+                      <div className="task-card-actions">
+                        {/* Перемістити в сусідній статус */}
+                        <div className="status-controls">
+                          {STATUSES.map((target) =>
+                            target.key !== task.status ? (
+                              <button
+                                key={target.key}
+                                className="small"
+                                onClick={() => changeStatus(task.id, target.key)}
+                                title={`Move to ${target.label}`}
+                              >
+                                → {target.label}
+                              </button>
+                            ) : null
+                          )}
+                        </div>
+
+                        <div className="controls">
+                          <Link to={`/tasks/${encodeURIComponent(task.id)}/edit`}>
+                            <button className="small">Edit</button>
+                          </Link>
+
+                          <button className="small" onClick={() => setConfirmId(task.id)}>Delete</button>
+                        </div>
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <p className="empty">Denis — the Great Performer. Everything is done.</p>
+                )}
               </div>
-            ))
-          )}
+            </div>
+          ))}
         </div>
       </section>
     </>
