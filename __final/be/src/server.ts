@@ -35,7 +35,6 @@ app.get('/', (req: Request, res: Response) => {
 
 app.use('/tasks', taskRoutes)
 
-/* eslint-disable @typescript-eslint/no-unused-vars */
 app.use((error: unknown, req: Request, res: Response, next: NextFunction) => {
   if (error instanceof AppError) {
     console.error('AppError:', error.message)
@@ -45,20 +44,40 @@ app.use((error: unknown, req: Request, res: Response, next: NextFunction) => {
   if (error instanceof ZodError) {
     const issues = error.issues
     const message = issues.map((issue) => issue.message ?? 'Invalid input').join('; ')
-
     console.error('ZodError:', message)
-
     return res.status(400).json({ error: `Invalid input: ${message}` })
   }
 
+  console.error('Unhandled error:', error)
   return res.status(500).json({
     error: error instanceof Error ? error.message : 'Internal Server Error'
   })
 })
 
-app.use((error: AppError, req: Request, res: Response) => {
-  res.status(error.statusCode).send(error.message)
-})
+/* eslint-disable @typescript-eslint/no-unused-vars */
+// app.use((error: unknown, req: Request, res: Response, next: NextFunction) => {
+//   if (error instanceof AppError) {
+//     console.error('AppError:', error.message)
+//     return res.status(error.statusCode).json({ error: error.message })
+//   }
+//
+//   if (error instanceof ZodError) {
+//     const issues = error.issues
+//     const message = issues.map((issue) => issue.message ?? 'Invalid input').join('; ')
+//
+//     console.error('ZodError:', message)
+//
+//     return res.status(400).json({ error: `Invalid input: ${message}` })
+//   }
+//
+//   return res.status(500).json({
+//     error: error instanceof Error ? error.message : 'Internal Server Error'
+//   })
+// })
+//
+// app.use((error: AppError, req: Request, res: Response) => {
+//   res.status(error.statusCode).send(error.message)
+// })
 
 
 export default app

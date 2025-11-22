@@ -11,6 +11,7 @@ router.get('/', validateQuery(taskQuerySchema), getAllTasks)
 router.get('/:id', getTaskDetails)
 router.post('/', validateBody(taskBodySchema), createTask)
 router.put('/:id', validateBody(taskBodySchema.partial()), updateTaskById)
+router.patch('/:id', validateBody(taskBodySchema.partial()), updateTaskById)
 router.delete('/:id', deleteTaskById)
 
 export default router

@@ -1,7 +1,7 @@
-export type Status = 'todo' | 'in_progress' | 'done'
+export type Status = 'todo' | 'in_progress' | 'review' | 'done'
 export type Priority = 'high' | 'medium' | 'low'
 
-export const TASK_STATUSES = ['todo', 'in_progress', 'done'] as const
+export const TASK_STATUSES = ['todo', 'in_progress', 'review', 'done'] as const
 export const TASK_PRIORITIES = ['low', 'medium', 'high'] as const
 
 export interface TaskFilter {

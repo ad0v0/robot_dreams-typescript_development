@@ -36,7 +36,7 @@ export default class TaskModel extends Model<TaskModel, TaskCreationAttributes> 
   declare description?: string | null
 
   @Column({
-    type: DataType.ENUM('todo', 'in_progress', 'done'),
+    type: DataType.ENUM('todo', 'in_progress', 'review', 'done'),
     allowNull: false,
     defaultValue: 'todo',
   })

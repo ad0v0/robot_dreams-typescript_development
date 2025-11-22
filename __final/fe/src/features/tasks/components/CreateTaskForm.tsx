@@ -88,6 +88,7 @@ export default function CreateTaskForm({ onCreated }: Props) {
             <select {...register('status')} className="input">
               <option value="todo">todo</option>
               <option value="in_progress">in_progress</option>
+              <option value="review">review</option>
               <option value="done">done</option>
             </select>
           </label>

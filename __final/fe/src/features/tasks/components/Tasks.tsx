@@ -5,6 +5,13 @@ import { getTasks, deleteTask, updateTask } from '../api'
 import type { Task } from '../types'
 import { formatDate, getErrorMessage } from '../../../shared/utils/utils'
 
+const STATUSES: { key: string; label: string }[] = [
+  { key: 'todo', label: 'To Do' },
+  { key: 'in_progress', label: 'In Progress' },
+  { key: 'review', label: 'Review' },
+  { key: 'done', label: 'Done' },
+]
+
 function Tasks() {
   const navigate = useNavigate()
 
@@ -31,36 +38,39 @@ function Tasks() {
     }
   }
 
+  useEffect(() => {
+    loadTasks()
+  }, [])
+
   async function handleDeleteConfirmed(id: string | null) {
     try {
       if (!id) return
       await deleteTask(id)
       showToast('Task deleted')
+
       loadTasks()
+
+      // setTasks((prevTask) => prevTask.filter((t) => t.id !== id))
     } catch (error) {
-      console.error('Failed to create a task due to: ', getErrorMessage(error))
+      console.error('Failed to delete task:', getErrorMessage(error))
       showToast('Error while deleting task')
     } finally {
       setConfirmId(null)
     }
   }
 
-  async function handleToggleStatus(currentTask: Task): Promise<void> {
-    const newStatus = currentTask.status === 'done' ? 'todo' : 'done'
-
+  async function changeStatus(taskId: string, newStatus: Task['status']) {
     try {
-      await updateTask(currentTask.id, { status: newStatus })
-      showToast('Status updated️')
+      await updateTask(taskId, { status: newStatus })
+      showToast('Status updated')
       loadTasks()
+
+      // setTasks((prev) => prev.map((t) => (t.id === taskId ? { ...t, status: newStatus } : t)))
     } catch (error) {
-      console.error('Failed to create a task due to: ', getErrorMessage(error))
+      console.error('Failed to update status: ', getErrorMessage(error))
       showToast('Failed to update status')
     }
   }
-
-  useEffect(() => {
-    loadTasks()
-  }, [])
 
   if (loading) {
     return (
@@ -73,6 +83,11 @@ function Tasks() {
       <p className="error">{error}</p>
     )
   }
+
+  const groupedTasks = STATUSES.reduce<Record<string, Task[]>>((acc, status) => {
+    acc[status.key] = tasks.filter((task) => task.status === status.key)
+    return acc
+  }, {} as Record<string, Task[]>)
 
   return (
     <>
@@ -93,45 +108,68 @@ function Tasks() {
         </div>
       )}
 
-      <section className="tasks">
-        <h2>On my plate...</h2>
-
-        <div style={{ marginBottom: 12 }}>
-          <button onClick={() => navigate('/tasks/create')}>Create task</button>
+      <section className="board">
+        <div className="board-header">
+          <h2>On my plate...</h2>
+          <div>
+            <button onClick={() => navigate('/tasks/create')}>Create task</button>
+          </div>
         </div>
 
-        <div className="tasks-list">
-          {tasks.length === 0 ? (
-            <p>Denis — the Great Performer. Everything is done.</p>
-          ) : (
-            tasks.map((task) => (
-              <div key={task.id} className="task">
-                <h3>
-                  <Link to={`/tasks/${encodeURIComponent(task.id)}`}>{task.title}</Link>
-                </h3>
-                <small>{task.description}</small>
+        <div className="columns">
+          {STATUSES.map((status) => (
+            <div key={status.key} className="column">
+              <h3>{status.label} ({groupedTasks[status.key]?.length ?? 0})</h3>
 
-                <div className="task-details">
-                  <div>Created: {formatDate(task.createdAt)}</div>
-                  <div>Deadline: {task.deadline ? formatDate(task.deadline) : '—'}</div>
-                  <div>
-                    Status:
-                    <span className={`status ${task.status}`}>{task.status}</span> • priority: {task.priority}
-                  </div>
-                </div>
+              <div className="column-list">
+                {(groupedTasks[status.key] && groupedTasks[status.key].length > 0) ? (
+                  groupedTasks[status.key].map((task) => (
+                    <div key={task.id} className="task-card">
+                      <div className="ask-card-header">
+                        <Link to={`/tasks/${encodeURIComponent(task.id)}`}>{task.title}</Link><br />
+                        <small>Priority: {task.priority}</small>
+                      </div>
 
-                <div className="task-controls">
-                  <button onClick={() => handleToggleStatus(task)}>
-                    {task.status === 'done' ? 'Mark as todo' : 'Mark as done'}
-                  </button>
+                      <div className="task-card-body">
+                        <small>{task.description}</small>
+                        <div className="metadata">
+                          <span>Created: {formatDate(task.createdAt)}</span><br />
+                          <span>Due date: {task.deadline ? formatDate(task.deadline) : '—'}</span>
+                        </div>
+                      </div>
 
-                  <button onClick={() => setConfirmId(task.id)}>
-                    Delete
-                  </button>
-                </div>
+                      <div className="task-card-actions">
+                        <div className="status-controls">
+                          {STATUSES.map((target) =>
+                            target.key !== task.status ? (
+                              <button
+                                key={target.key}
+                                className="small"
+                                onClick={() => changeStatus(task.id, target.key)}
+                                title={`Move to ${target.label}`}
+                              >
+                                Move to {target.label}
+                              </button>
+                            ) : null
+                          )}
+                        </div>
+
+                        <div className="controls">
+                          <Link to={`/tasks/${encodeURIComponent(task.id)}/edit`}>
+                            <button className="small">Edit</button>
+                          </Link>
+
+                          <button className="small" onClick={() => setConfirmId(task.id)}>Delete</button>
+                        </div>
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <p className="empty">—</p>
+                )}
               </div>
-            ))
-          )}
+            </div>
+          ))}
         </div>
       </section>
     </>
