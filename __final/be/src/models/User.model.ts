@@ -6,16 +6,19 @@ import {
   HasMany,
   CreatedAt,
   UpdatedAt,
-} from 'sequelize-typescript'
-import TaskModel from './Task.model'
+} from "sequelize-typescript"
+import TaskModel from "./Task.model"
 
 interface UserCreationAttributes {
   name: string
   email: string
 }
 
-@Table({ tableName: 'users' })
-export default class UserModel extends Model<UserModel, UserCreationAttributes> {
+@Table({ tableName: "users" })
+export default class UserModel extends Model<
+  UserModel,
+  UserCreationAttributes
+> {
   @Column({
     type: DataType.UUID,
     primaryKey: true,
@@ -30,13 +33,13 @@ export default class UserModel extends Model<UserModel, UserCreationAttributes> 
   declare email: string
 
   @CreatedAt
-  @Column({ type: DataType.DATE, field: 'created_at' })
+  @Column({ type: DataType.DATE, field: "created_at" })
   declare createdAt: Date
 
   @UpdatedAt
-  @Column({ type: DataType.DATE, field: 'updated_at' })
+  @Column({ type: DataType.DATE, field: "updated_at" })
   declare updatedAt: Date
 
-  @HasMany(() => TaskModel, 'assigneeId')
+  @HasMany(() => TaskModel, "assigneeId")
   declare tasks?: TaskModel[]
 }

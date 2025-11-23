@@ -7,8 +7,8 @@
     "dev": "tsx watch src/server.ts",
     "test": "NODE_ENV=test jest --runInBand",
     "build": "tsc -p tsconfig.build.json",
-    "lint": "eslint . ",
-    "lint:fix": "eslint . --fix",
+    "lint": "eslint 'src/**/*.{ts,tsx,js,jsx}'",
+    "lint:fix": "eslint --fix 'src/**/*.{ts,tsx,js,jsx}'",
     "prepare": "husky",
     "delete-tasks": "ts-node src/delete-tasks.ts"
   },

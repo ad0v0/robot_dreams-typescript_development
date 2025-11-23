@@ -7,9 +7,9 @@ import {
   BelongsTo,
   CreatedAt,
   UpdatedAt,
-} from 'sequelize-typescript'
-import UserModel from './User.model'
-import type { Status, Priority } from '../types/task.types'
+} from "sequelize-typescript"
+import UserModel from "./User.model"
+import type { Status, Priority } from "../types/task.types"
 
 interface TaskCreationAttributes {
   title: string
@@ -20,8 +20,11 @@ interface TaskCreationAttributes {
   assigneeId?: string | null
 }
 
-@Table({ tableName: 'tasks' })
-export default class TaskModel extends Model<TaskModel, TaskCreationAttributes> {
+@Table({ tableName: "tasks" })
+export default class TaskModel extends Model<
+  TaskModel,
+  TaskCreationAttributes
+> {
   @Column({
     type: DataType.UUID,
     primaryKey: true,
@@ -36,34 +39,38 @@ export default class TaskModel extends Model<TaskModel, TaskCreationAttributes> 
   declare description?: string | null
 
   @Column({
-    type: DataType.ENUM('todo', 'in_progress', 'review', 'done'),
+    type: DataType.ENUM("todo", "in_progress", "review", "done"),
     allowNull: false,
-    defaultValue: 'todo',
+    defaultValue: "todo",
   })
   declare status: Status
 
   @Column({
-    type: DataType.ENUM('low', 'medium', 'high'),
+    type: DataType.ENUM("low", "medium", "high"),
     allowNull: false,
-    defaultValue: 'low',
+    defaultValue: "low",
   })
   declare priority: Priority
 
-  @Column({ type: DataType.DATE, allowNull: false, defaultValue: () => new Date(Date.now() + 7*24*60*60*1000) })
+  @Column({
+    type: DataType.DATE,
+    allowNull: false,
+    defaultValue: () => new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+  })
   declare deadline: Date
 
   @ForeignKey(() => UserModel)
   @Column({ type: DataType.UUID, allowNull: true })
   declare assigneeId?: string | null
 
-  @BelongsTo(() => UserModel, 'assigneeId')
+  @BelongsTo(() => UserModel, "assigneeId")
   declare assignee?: UserModel
 
   @CreatedAt
-  @Column({ type: DataType.DATE, field: 'created_at' })
+  @Column({ type: DataType.DATE, field: "created_at" })
   declare createdAt: Date
 
   @UpdatedAt
-  @Column({ type: DataType.DATE, field: 'updated_at' })
+  @Column({ type: DataType.DATE, field: "updated_at" })
   declare updatedAt: Date
 }

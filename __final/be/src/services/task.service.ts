@@ -1,16 +1,16 @@
-import { Op } from 'sequelize'
+import { Op } from "sequelize"
 
-import AppError from '../error'
-import { TaskModel } from '../config/database'
-import type { Task, TaskFilter, Status, Priority } from '../types/task.types'
+import AppError from "../error"
+import { TaskModel } from "../config/database"
+import type { Task, TaskFilter, Status, Priority } from "../types/task.types"
 
 export const getTasks = async (filters?: TaskFilter) => {
-    const appliedFilters: Partial<{
+  const appliedFilters: Partial<{
     status: Status
     priority: Priority
-    createdAt: { 
-      [Op.gte]: Date; 
-      [Op.lt]: Date 
+    createdAt: {
+      [Op.gte]: Date
+      [Op.lt]: Date
     }
   }> = {}
 
@@ -47,7 +47,7 @@ export const getTaskById = async (id: string) => {
   const task = await TaskModel.findByPk(id)
 
   if (!task) {
-    throw new AppError('Task not found', 404)
+    throw new AppError("Task not found", 404)
   }
   return task
 }
@@ -70,13 +70,13 @@ export const addTask = async (taskData: {
 }
 
 export const updateTask = async (
-  id: string, 
-  updates: Partial<Task> & { assigneeId?: string | null }
+  id: string,
+  updates: Partial<Task> & { assigneeId?: string | null },
 ) => {
   const task = await TaskModel.findByPk(id)
 
   if (!task) {
-    throw new AppError('Task not found', 404)
+    throw new AppError("Task not found", 404)
   }
 
   await task.update({

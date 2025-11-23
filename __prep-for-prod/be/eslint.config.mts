@@ -18,7 +18,6 @@ export default defineConfig([
   {
     files: ["**/*.ts", "**/*.mts", "**/*.cts"],
     rules: {
-      "@typescript-eslint/no-explicit-any": "error",
       "prettier/prettier": "error",
     },
   },
