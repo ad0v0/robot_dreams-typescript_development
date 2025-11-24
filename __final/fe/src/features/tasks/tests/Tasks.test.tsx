@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from '@testing-library/react'
+import { render, screen, waitFor, within } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
 import { vi } from 'vitest'
 
@@ -45,13 +45,13 @@ describe('Tasks', () => {
     expect(screen.getByText('Test task')).toBeInTheDocument()
     expect(screen.getByText('Test description')).toBeInTheDocument()
 
-    const statusEl = screen.getByText('todo')
-    expect(statusEl).toBeInTheDocument()
-    expect(statusEl).toHaveClass('status', 'todo')
+    const todoColumn = screen.getByLabelText('To Do')
+    expect(todoColumn).toBeInTheDocument()
+    expect(within(todoColumn).getByText('Test task')).toBeInTheDocument()
 
     expect(screen.getByText(/priority:/i)).toBeInTheDocument()
     expect(screen.getByText(/Created:/i)).toBeInTheDocument()
-    expect(screen.getByText(/Deadline:/i)).toBeInTheDocument()
+    expect(screen.getByText(/Due date:/i)).toBeInTheDocument()
   })
 
   test('Shows empty state when there are no tasks', async () => {

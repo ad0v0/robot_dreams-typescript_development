@@ -144,6 +144,10 @@ function Tasks() {
           </div>
         </div>
 
+        {tasks.length === 0 && (
+          <h3>Denis — the Great Performer. Everything is done.</h3>
+        )}
+
         <DndContext sensors={sensors} onDragEnd={handleDragEnd}>
           <div className="columns">
             {STATUSES.map((status) => (
